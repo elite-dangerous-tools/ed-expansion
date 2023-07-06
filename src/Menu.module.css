@@ -3,10 +3,11 @@
 }
 
 :local(.contenedorAplicacion) {
-    position: relative;
-    width: 200px;
-    overflow-x: visible;
-    height: 200px;
+    background-color: white;
+    width: 100%;
+    max-width: 1700px;
+    padding: 20px;
+    box-sizing: border-box;
     margin: auto;
 }
 
@@ -48,10 +49,6 @@
     :local(.appbar) > * + * {
         margin-left: 15px;
     }
-
-    :local(.contenedorAplicacion) {
-        scale: 75%;
-    }
 }
 
 @media screen and (max-width: 520px) {
@@ -68,30 +65,10 @@
     :local(.appbar) > * + * {
         margin-left: 10px;
     }
-
-    :local(.contenedorAplicacion) {
-        scale: 65%;
-    }
 }
 
 @media screen and (max-width: 470px) {
     :local(.contenedorApp) {
         margin-top: 5px;
-    }
-
-    :local(.contenedorAplicacion) {
-        scale: 55%;
-    }
-}
-
-@media screen and (max-width: 400px) {
-    :local(.contenedorAplicacion) {
-        scale: 45%;
-    }
-}
-
-@media screen and (max-width: 300px) {
-    :local(.contenedorAplicacion) {
-        scale: 35%;
     }
 }

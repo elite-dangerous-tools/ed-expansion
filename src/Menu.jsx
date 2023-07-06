@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Menu.module.css";
-import Boton from "./elementos/Boton";
+import Busqueda from "./Busqueda";
 
 const Menu = props => {
     const isMounted = useRef(false);
+
+    const [sistema, setSistema] = useState(0);
 
     useEffect(() => {
         // Constructor
@@ -19,13 +21,10 @@ const Menu = props => {
                 </div>
 
                 <span className={estilos.separadorDerecha}></span>
-
             </div>
 
             <div className={estilos.contenedorAplicacion}>
-                <div>
-                    
-                </div>
+                <Busqueda sistema={sistema} setSistema={setSistema} />
             </div>
         </div>
     );
