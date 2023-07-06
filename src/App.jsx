@@ -17,7 +17,7 @@ const App = props => {
     const isMounted = useRef(false);
     const [hayActualizacion, setHayActualizacion] = useState(true);
     const [ultimaVersion, setUltimaVersion] = useState("");
-    const [base, setBase] = useState("/");
+    const [base, setBase] = useState(dameUrlBase());
 
     async function recuperarVersion() {
         let response = await fetch(base + "meta.json?f=" + new Date().getTime(), {
@@ -40,7 +40,6 @@ const App = props => {
         // Constructor
         isMounted.current = true;
 
-        setBase(dameUrlBase());
         recuperarVersion();
     }, []);
 
