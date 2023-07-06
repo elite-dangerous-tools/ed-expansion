@@ -64,9 +64,12 @@ const App = props => {
 
                 <div className={estilos.contenedorAplicacion}>
                     <Routes>
-                        <Route path={base} element={<Busqueda />} />
-                        <Route path={base + "sistema/:id"} element={<Sistema />} />
-                        <Route path="*" element={<NoMatch />} />
+                        <Route exact path={base} element={<Busqueda />} />
+
+                        {/* <Route exact path={base + "sistema/:id"} element={<Sistema />} /> */}
+                        <Route path={"sistema/:id"} element={<Sistema />} />
+
+                        <Route exact path="*" element={<NoMatch />} />
                     </Routes>
                 </div>
             </div>
