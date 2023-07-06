@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Busqueda.module.css";
 import Boton from "./elementos/Boton";
+import { Link } from "react-router-dom";
 
 const Busqueda = props => {
     const isMounted = useRef(false);
@@ -38,6 +39,10 @@ const Busqueda = props => {
         }
     }
 
+    function limpiarSistemas() {
+        setSistemas([]);
+    }
+
     return (
         <div className={estilos.nada}>
             <label>Sistema:</label>
@@ -47,6 +52,10 @@ const Busqueda = props => {
             <Boton desactivado={sistemaBuscar.length === 0} fnClick={buscarSistemas}>
                 buscar
             </Boton>
+            &nbsp;
+            <Boton desactivado={sistemas.length === 0} fnClick={limpiarSistemas}>
+                limpiar
+            </Boton>
             {sistemas.length > 0 ? (
                 <>
                     <hr />
@@ -55,13 +64,14 @@ const Busqueda = props => {
                             <tr>
                                 <th>Nombre</th>
                                 <th>Lealtad</th>
-                                <th>Facción</th>
+                                <th>Facción Dominante</th>
                                 <th>Estado Facción</th>
                                 <th>Gobierno</th>
                                 <th>Población</th>
                                 <th>Seguridad</th>
                                 <th>Economía Principal</th>
                                 <th>Economía Secundaria</th>
+                                <th>Requiere Permiso</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,7 +83,10 @@ const Busqueda = props => {
 
                                 return (
                                     <tr key={sistema.name}>
-                                        <td>{sistema.name}</td>
+                                        <td>
+                                            {/* <Link to={"/sistema/" + sistema.id}>{sistema.name}</Link> */}
+                                            <Link to={"/sistema/" + sistema.name}>{sistema.name}</Link>
+                                        </td>
                                         <td>{info.allegiance}</td>
                                         <td>{info.faction}</td>
                                         <td>{info.factionState}</td>
@@ -82,6 +95,7 @@ const Busqueda = props => {
                                         <td>{info.security}</td>
                                         <td>{info.economy}</td>
                                         <td>{info.secondEconomy}</td>
+                                        <td>{sistema.permitName}</td>
                                     </tr>
                                 );
                             })}

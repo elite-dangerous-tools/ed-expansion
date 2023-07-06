@@ -1,6 +1,0 @@
-- Menu seleccion colores de fichas
-- Mostrar fichas comidas
-- Comprobar posible jaque en cada movimiento permitido y el ganador (No permitir jugadas ilegales)
-- Comprobar si un jugador pierde por ahogado y el ganador
-- Añadir movimiento de captura en paso
-- Añadir movimiento de enroque
