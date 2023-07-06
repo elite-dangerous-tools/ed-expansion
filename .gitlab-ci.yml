@@ -11,8 +11,7 @@ pages:
         - npm run build
         - rm -Rf public
         - mv build public
-        - rm public/index.html
-        - mv public/index-gitlab.html public/index.html
+        - cp public/index-gitlab.html public/index.html
     artifacts:
         paths:
             - public
