@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
+import packageJson from "../package.json" assert { type: "json" };
+
 import CacheBuster from "./scripts/cacheBuster";
 
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
@@ -36,6 +38,7 @@ const App = props => {
                                 </b>
 
                                 <span className={estilos.separadorDerecha}></span>
+                                <div>v{packageJson.version}</div>
                             </div>
 
                             <div className={estilos.contenedorAplicacion}>
