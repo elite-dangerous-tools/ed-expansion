@@ -1,0 +1,97 @@
+:local(.contenedorApp) {
+    margin-top: 60px;
+}
+
+:local(.contenedorAplicacion) {
+    position: relative;
+    width: 200px;
+    overflow-x: visible;
+    height: 200px;
+    margin: auto;
+}
+
+:local(.appbar) {
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    padding: 5px 25px;
+    display: inline-flex;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+
+:local(.appbar) > * {
+    align-self: center;
+}
+
+:local(.appbar) > * + * {
+    margin-left: 25px;
+}
+
+:local(.separadorDerecha) {
+    margin-left: auto !important;
+}
+
+@media screen and (max-width: 768px) {
+    :local(.contenedorApp) {
+        margin-top: 40px;
+    }
+
+    :local(.appbar) {
+        padding: 3px 15px;
+        font-size: 0.85rem;
+    }
+
+    :local(.appbar) > * + * {
+        margin-left: 15px;
+    }
+
+    :local(.contenedorAplicacion) {
+        scale: 75%;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    :local(.contenedorApp) {
+        margin-top: 15px;
+    }
+
+    :local(.appbar) {
+        height: 40px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+    }
+
+    :local(.appbar) > * + * {
+        margin-left: 10px;
+    }
+
+    :local(.contenedorAplicacion) {
+        scale: 65%;
+    }
+}
+
+@media screen and (max-width: 470px) {
+    :local(.contenedorApp) {
+        margin-top: 5px;
+    }
+
+    :local(.contenedorAplicacion) {
+        scale: 55%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    :local(.contenedorAplicacion) {
+        scale: 45%;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    :local(.contenedorAplicacion) {
+        scale: 35%;
+    }
+}

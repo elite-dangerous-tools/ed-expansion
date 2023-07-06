@@ -1,0 +1,56 @@
+{
+    "name": "ed-expansion",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "chokidar": "^3.5.3",
+        "esbuild": "^0.15.13",
+        "esbuild-css-modules-plugin": "^2.6.2",
+        "file-saver": "^2.0.5",
+        "fs-extra": "^10.1.0",
+        "live-server": "^1.2.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "lint-staged": {
+        "src/**/*.{js,jsx,json,css}": [
+            "prettier --double-quote --write --tab-width 4 --print-width 160 --eol=lf",
+            "git add"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "scripts": {
+        "generate-version": "node ./src/scripts/generate-build-version",
+        "prebuild": "npm run generate-version",
+        "pre-commit": "lint-staged",
+        "lint": "eslint \"src/**/*.{js,jsx}\" --max-warnings=0",
+        "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
+        "build": "node ./src/scripts/build.js",
+        "start": "node ./src/scripts/dev.js --port=4000",
+        "dev": "npm run start"
+    },
+    " jest ": {
+        " automock ": true,
+        " setupFiles ": [
+            "/src/prepararJest.js"
+        ],
+        "setupTestFrameworkScriptFile": "<rootDir>/src/prepararJest.js"
+    },
+    "devDependencies": {
+        "prettier": "^1.16.4"
+    },
+    "overrides": {
+        "chokidar": "^3.5.3"
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not ie <= 11",
+        "not op_mini all"
+    ]
+}
