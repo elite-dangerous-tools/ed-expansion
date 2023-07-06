@@ -17,9 +17,10 @@ const App = props => {
     const isMounted = useRef(false);
     const [hayActualizacion, setHayActualizacion] = useState(true);
     const [ultimaVersion, setUltimaVersion] = useState("");
+    const [base, setBase] = useState("/");
 
     async function recuperarVersion() {
-        let response = await fetch(dameUrlBase() + "meta.json?f=" + new Date().getTime(), {
+        let response = await fetch(base + "meta.json?f=" + new Date().getTime(), {
             method: "GET",
             mode: "no-cors",
             cache: "no-cache"
@@ -31,7 +32,6 @@ const App = props => {
             setUltimaVersion(latestVersion);
 
             let hayActualizacion = semverGreaterThan(latestVersion, packageJson.version);
-            console.log("hay nueva version", hayActualizacion);
             setHayActualizacion(hayActualizacion);
         }
     }
@@ -40,6 +40,7 @@ const App = props => {
         // Constructor
         isMounted.current = true;
 
+        setBase(dameUrlBase());
         recuperarVersion();
     }, []);
 
@@ -48,7 +49,7 @@ const App = props => {
             <div className={estilos.contenedorApp}>
                 <div className={estilos.appbar}>
                     <b className={estilos.nombreApp}>
-                        <Link to="/">Planificador de Expansiones</Link>
+                        <Link to={base}>Planificador de Expansiones</Link>
                     </b>
 
                     <span className={estilos.separadorDerecha}></span>
@@ -64,8 +65,8 @@ const App = props => {
 
                 <div className={estilos.contenedorAplicacion}>
                     <Routes>
-                        <Route path="/" element={<Busqueda />} />
-                        <Route path="/sistema/:id" element={<Sistema />} />
+                        <Route path={base} element={<Busqueda />} />
+                        <Route path={base + "sistema/:id"} element={<Sistema />} />
                         <Route path="*" element={<NoMatch />} />
                     </Routes>
                 </div>
