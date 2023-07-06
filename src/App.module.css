@@ -41,6 +41,14 @@
     margin-left: auto !important;
 }
 
+:local(.versionAnterior) {
+    color: red;
+}
+
+:local(.versionNueva) {
+    color: blue;
+}
+
 @media screen and (max-width: 768px) {
     :local(.contenedorApp) {
         margin-top: 40px;

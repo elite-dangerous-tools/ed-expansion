@@ -1,4 +1,4 @@
-const clonar = (elemento) => {
+const clonar = elemento => {
     if (Array.isArray(elemento)) {
         return elemento.slice();
     } else if (typeof elemento === "object") {
@@ -6,4 +6,26 @@ const clonar = (elemento) => {
     }
 };
 
-export { clonar };
+const semverGreaterThan = (versionA, versionB) => {
+    const versionsA = versionA.split(/\./g);
+
+    const versionsB = versionB.split(/\./g);
+    while (versionsA.length || versionsB.length) {
+        const a = Number(versionsA.shift());
+
+        const b = Number(versionsB.shift());
+        if (a === b) continue;
+        return a > b || isNaN(b);
+    }
+    return false;
+};
+
+const dameUrlBase = () => {
+    if (window.location.href.includes("ed-expansion")) {
+        return "/ed-expansion/";
+    } else {
+        return "/";
+    }
+};
+
+export { clonar, semverGreaterThan, dameUrlBase };
