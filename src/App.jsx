@@ -2,8 +2,9 @@ import React, { useEffect, useRef } from "react";
 
 import CacheBuster from "./scripts/cacheBuster";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
+import "./grid.css";
 import estilos from "./App.module.css";
 
 import Busqueda from "./Busqueda";
@@ -30,9 +31,9 @@ const App = props => {
                     <BrowserRouter>
                         <div className={estilos.contenedorApp}>
                             <div className={estilos.appbar}>
-                                <div>
-                                    <b>Planificador de Expansiones</b>
-                                </div>
+                                <b className={estilos.nombreApp}>
+                                    <Link to="/">Planificador de Expansiones</Link>
+                                </b>
 
                                 <span className={estilos.separadorDerecha}></span>
                             </div>

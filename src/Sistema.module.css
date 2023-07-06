@@ -1,0 +1,10 @@
+
+:local(.columna) {
+    text-transform: capitalize;
+    padding: 10px;
+}
+
+:local(.titulo) {
+    text-transform: capitalize;
+    text-align: center;
+}
