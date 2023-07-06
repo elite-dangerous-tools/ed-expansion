@@ -15,8 +15,8 @@ import { dameUrlBase, semverGreaterThan } from "./utilidades";
 
 const App = props => {
     const isMounted = useRef(false);
+    const [hayActualizacion, setHayActualizacion] = useState(true);
     const [ultimaVersion, setUltimaVersion] = useState("");
-    const [esultimaVersion, setEsUltimaVersion] = useState(true);
 
     async function recuperarVersion() {
         let response = await fetch(dameUrlBase() + "meta.json?f=" + new Date().getTime(), {
@@ -30,8 +30,9 @@ const App = props => {
             const latestVersion = meta.version;
             setUltimaVersion(latestVersion);
 
-            let esUltima = semverGreaterThan(packageJson.version, latestVersion);
-            setEsUltimaVersion(esUltima);
+            let hayActualizacion = semverGreaterThan(latestVersion, packageJson.version);
+            console.log("hay nueva version", hayActualizacion);
+            setHayActualizacion(hayActualizacion);
         }
     }
 
@@ -51,8 +52,8 @@ const App = props => {
                     </b>
 
                     <span className={estilos.separadorDerecha}></span>
-                    {esultimaVersion && <div>v{packageJson.version}</div>}
-                    {!esultimaVersion && (
+                    {!hayActualizacion && <div>v{packageJson.version}</div>}
+                    {hayActualizacion && (
                         <div>
                             <span className={estilos.versionAnterior}>v{packageJson.version}</span>
                             &nbsp;-&nbsp;
