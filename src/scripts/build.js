@@ -19,8 +19,7 @@ const build = async () => {
             return console.log("Error al leer index.html", err);
         }
 
-        console.log("leo y reemplazo version");
-        var result = data.replaceAll("?v=dev", "?v=" + packageJson.version);
+        var result = data.replaceAll("?v=dev", "?v=" + packageJson.version).replaceAll("\"/", "\"/ed-expansion/");
 
         fse.writeFile(carpetaProd + "/index.html", result, "utf8", function(err) {
             if (err) return console.log("Error al escribir index.html", err);
