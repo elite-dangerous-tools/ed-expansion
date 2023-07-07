@@ -40,6 +40,8 @@ const App = props => {
         // Constructor
         isMounted.current = true;
 
+        console.log(base + "sistema");
+
         recuperarVersion();
     }, []);
 
@@ -64,9 +66,9 @@ const App = props => {
 
                 <div className={estilos.contenedorAplicacion}>
                     <Routes>
-                        <Route exact path={base} element={<Busqueda base={base} />} />
-                        <Route exact path={base + "sistema"} element={<Sistema base={base} />} />
-                        <Route exact path="*" element={<NoMatch />} />
+                        <Route path={base} element={<Busqueda base={base} />} />
+                        <Route path={base + "sistema"} element={<Sistema base={base} />} />
+                        <Route path="*" element={<NoMatch />} />
                     </Routes>
                 </div>
             </div>
