@@ -28,8 +28,4 @@ const dameUrlBase = () => {
     }
 };
 
-const dameBusqueda = () => {
-    return window.location.search.replace("?", "");
-};
-
-export { clonar, semverGreaterThan, dameUrlBase, dameBusqueda };
+export { clonar, semverGreaterThan, dameUrlBase };
