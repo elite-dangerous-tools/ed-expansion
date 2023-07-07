@@ -2,18 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Sistema.module.css";
 
+import { dameBusqueda } from "./utilidades";
 import Boton from "./elementos/Boton";
-import { useParams } from "react-router-dom";
 
 const Sistema = () => {
-    let { nombreSistema } = useParams();
     const isMounted = useRef(false);
+    const nombreSistema = useRef(dameBusqueda());
 
     const [sistema, setSistema] = useState({});
     const [trafico, setTrafico] = useState({});
 
     async function recuperarSistema() {
-        let response = await fetch("https://www.edsm.net/api-v1/system?systemName=" + nombreSistema + "&showId=1&showInformation=1&showPermit=1&showCoordinates=1", {
+        let response = await fetch("https://www.edsm.net/api-v1/system?systemName=" + nombreSistema.current + "&showId=1&showInformation=1&showPermit=1&showCoordinates=1", {
             method: "GET"
         });
 
@@ -24,7 +24,7 @@ const Sistema = () => {
     }
 
     async function recuperarTraficoSistema() {
-        let response = await fetch("https://www.edsm.net/api-system-v1/traffic?systemName=" + nombreSistema, {
+        let response = await fetch("https://www.edsm.net/api-system-v1/traffic?systemName=" + nombreSistema.current, {
             method: "GET"
         });
 
