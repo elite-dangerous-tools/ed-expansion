@@ -84,8 +84,9 @@ const Busqueda = props => {
                                 return (
                                     <tr key={sistema.name}>
                                         <td>
-                                            {/* <Link to={props.base + "sistema/" + sistema.id}>{sistema.name}</Link> */}
-                                            <Link to={props.base + "sistema/" + sistema.name}>{sistema.name}</Link>
+                                            <b>
+                                                <Link to={props.base + "sistema?" + sistema.name}>{sistema.name}</Link>
+                                            </b>
                                         </td>
                                         <td>{info.allegiance}</td>
                                         <td>{info.faction}</td>

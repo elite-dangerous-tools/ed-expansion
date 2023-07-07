@@ -2,18 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Sistema.module.css";
 
+import { dameBusqueda } from "./utilidades";
 import Boton from "./elementos/Boton";
-import { useParams } from "react-router-dom";
 
 const Sistema = () => {
     const isMounted = useRef(false);
+    const nombreSistema = useRef(dameBusqueda());
 
-    let { id } = useParams();
     const [sistema, setSistema] = useState({});
     const [trafico, setTrafico] = useState({});
 
     async function recuperarSistema() {
-        let response = await fetch("https://www.edsm.net/api-v1/system?systemName=" + id + "&showId=1&showInformation=1&showPermit=1&showCoordinates=1", {
+        let response = await fetch("https://www.edsm.net/api-v1/system?systemName=" + nombreSistema.current + "&showId=1&showInformation=1&showPermit=1&showCoordinates=1", {
             method: "GET"
         });
 
@@ -24,7 +24,7 @@ const Sistema = () => {
     }
 
     async function recuperarTraficoSistema() {
-        let response = await fetch("https://www.edsm.net/api-system-v1/traffic?systemName=" + id, {
+        let response = await fetch("https://www.edsm.net/api-system-v1/traffic?systemName=" + nombreSistema.current, {
             method: "GET"
         });
 
@@ -68,7 +68,8 @@ const Sistema = () => {
     return (
         <>
             <fieldset>
-                <h3 className={estilos.titulo}>{id}</h3>
+                {/* <h3 className={estilos.titulo}>{nombreSistema.current}</h3> */}
+                <h3 className={estilos.titulo}>{sistema.name}</h3>
                 <div className="row">
                     <div className={claseColumna}>
                         <b>sistema: </b>
