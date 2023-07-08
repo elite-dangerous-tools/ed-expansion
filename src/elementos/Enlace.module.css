@@ -2,6 +2,7 @@
     cursor: pointer;
 }
 
-:local(.enlaceColores) {
+:local(.enlaceDecorado) {
     color: blue;
+    text-decoration: underline;
 }

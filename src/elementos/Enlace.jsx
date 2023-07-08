@@ -3,7 +3,7 @@ import React from "react";
 import estilos from "./Enlace.module.css";
 import { ProveedorRuta } from "./ProveedorRuta";
 
-const Enlace = ({ children, to, hasColors = true }) => {
+const Enlace = ({ children, to, decoracion = true }) => {
     function fnClick(cambiaRuta) {
         history.pushState(null, "", to);
         cambiaRuta(to);
@@ -25,7 +25,7 @@ const Enlace = ({ children, to, hasColors = true }) => {
                     className={
                         estilos.enlace +
                         " " +
-                        (hasColors ? estilos.enlaceColores : "")
+                        (decoracion ? estilos.enlaceDecorado : "")
                     }
                     onClick={fnClick.bind(this, cambiaRuta)}
                     onMouseUp={fnMouseUp}
