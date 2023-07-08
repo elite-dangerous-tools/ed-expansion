@@ -21,11 +21,12 @@ const semverGreaterThan = (versionA, versionB) => {
 };
 
 const dameUrlBase = () => {
-    if (window.location.href.includes("ed-expansion")) {
-        return "/ed-expansion/";
-    } else {
-        return "/";
-    }
+    return "/";
+    // if (window.location.href.includes("ed-expansion")) {
+    //     return "/ed-expansion/";
+    // } else {
+    //     return "/";
+    // }
 };
 
 const dameBusqueda = () => {
