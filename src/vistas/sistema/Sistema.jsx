@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import estilos from "./Sistema.module.css";
 
 import { dameBusqueda } from "../../utilidades";
-import Boton from "../../elementos/Boton";
 
 const Sistema = () => {
     const isMounted = useRef(false);
@@ -46,7 +45,7 @@ const Sistema = () => {
 
     async function recuperarFaccionesSistema() {
         let response = await fetch(
-            "https://www.edsm.net/api-system-v1/factions?systemName=" +
+            "https://www.edsm.net/api-system-v1/factions?showHistory=1&systemName=" +
                 nombreSistema,
             {
                 method: "GET",
@@ -91,21 +90,34 @@ const Sistema = () => {
 
         // "recoveringStates": [],
         // "pendingStates": [],
-        // "happiness": "Happy",
-        // "isPlayer": false,
-        // "lastUpdate": 1687798184
+
+        let faccionDominante = facciones.controllingFaction.id;
 
         return facciones.factions.map((faccion) => {
+            let esDominante = faccionDominante === faccion.id;
+
             return (
                 <tr key={faccion.id}>
                     <td>{faccion.name}</td>
                     <td>{faccion.allegiance}</td>
                     <td>{faccion.government}</td>
-                    <td>{faccion.influence}</td>
+                    <td>{faccion.influence * 100}%</td>
                     <td>{faccion.state}</td>
+                    <td>{faccion.hapiness}</td>
+                    <td>{faccion.isPlayer}</td>
                 </tr>
             );
         });
+    }
+
+    function ultimaActualizacion() {
+        try {
+            return new Date(
+                parseInt(facciones.factions[0].lastUpdate + "000")
+            ).toLocaleString();
+        } catch (error) {
+            return "";
+        }
     }
 
     useEffect(() => {
@@ -129,6 +141,23 @@ const Sistema = () => {
                             <b>sistema: </b>
                             {sistema.name}
                         </div>
+                        <div className={claseColumna}>
+                            <a
+                                target="_blank"
+                                href={
+                                    "https://inara.cz/elite/starsystem/?search=" +
+                                    sistema.name
+                                }
+                            >
+                                Ver en Inara
+                            </a>
+                        </div>
+                        <div className={claseColumna}>
+                            <a target="_blank" href={trafico.url}>
+                                Ver en EDSM
+                            </a>
+                        </div>
+
                         <div className={claseColumna}>
                             <b>lealtad: </b>
                             {sistema.information
@@ -176,6 +205,10 @@ const Sistema = () => {
                             {sistema.information
                                 ? sistema.information.secondEconomy
                                 : undefined}
+                        </div>
+                        <div className={claseColumna}>
+                            <b>ultima actualización: </b>
+                            {ultimaActualizacion()}
                         </div>
                     </div>
                 </fieldset>
@@ -229,6 +262,8 @@ const Sistema = () => {
                                 <th>Gobierno</th>
                                 <th>Influencia</th>
                                 <th>Estado</th>
+                                <th>Felicidad</th>
+                                <th>De jugador</th>
                             </tr>
                         </thead>
                         <tbody>{pintarFacciones()}</tbody>
