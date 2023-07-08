@@ -1,8 +1,6 @@
-<IfModule mod_rewrite.c>
+Options -MultiViews
     RewriteEngine On
-    RewriteBase /ed-expansion/
-    RewriteRule ^index\.html$ - [L]
+    RewriteBase /
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule . /ed-expansion/index.html [L]
-</IfModule>
+    RewriteRule ^ index.html [QSA,L]

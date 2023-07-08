@@ -39,8 +39,6 @@ const App = props => {
         // Constructor
         isMounted.current = true;
 
-        console.log("base sistema:", base + "sistema");
-
         recuperarVersion();
     }, []);
 
