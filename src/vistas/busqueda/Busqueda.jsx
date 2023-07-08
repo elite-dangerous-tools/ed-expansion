@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Busqueda.module.css";
-import Boton from "./elementos/Boton";
+import Boton from "../../elementos/Boton";
 import { Link } from "react-router-dom";
 
 const Busqueda = props => {

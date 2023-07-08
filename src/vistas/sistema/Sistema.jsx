@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Sistema.module.css";
 
-import { dameBusqueda } from "./utilidades";
-import Boton from "./elementos/Boton";
+import { dameBusqueda } from "../../utilidades";
+import Boton from "../../elementos/Boton";
 
 const Sistema = () => {
     const isMounted = useRef(false);

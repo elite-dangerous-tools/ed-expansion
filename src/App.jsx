@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 // import packageJson from "../package.json" assert { type: "json" };
 import packageJson from "../package.json";
 
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
 import "./grid.css";
 import estilos from "./App.module.css";
 
-import Busqueda from "./Busqueda";
-import Sistema from "./Sistema";
-import NoMatch from "./NoMatch";
 import { dameUrlBase, semverGreaterThan } from "./utilidades";
+import Busqueda from "./vistas/busqueda/Busqueda";
+import Sistema from "./vistas/sistema/Sistema";
+import NoMatch from "./vistas/noMatch/NoMatch";
 
 const App = props => {
     const isMounted = useRef(false);
