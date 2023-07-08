@@ -1,0 +1,7 @@
+:local(.enlace) {
+    cursor: pointer;
+}
+
+:local(.enlaceColores) {
+    color: blue;
+}

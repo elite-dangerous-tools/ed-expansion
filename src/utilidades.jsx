@@ -1,4 +1,4 @@
-const clonar = elemento => {
+const clonar = (elemento) => {
     if (Array.isArray(elemento)) {
         return elemento.slice();
     } else if (typeof elemento === "object") {
@@ -29,7 +29,36 @@ const dameUrlBase = () => {
 };
 
 const dameBusqueda = () => {
-    return window.location.search.replace("?", "");
+    try {
+        let busquedaCompleta = window.location.search
+            .replace("?", "")
+            .split("&");
+
+        let uri = busquedaCompleta[0].split("=")[1];
+        return uri ? decodeURI(uri) : "";
+    } catch (error) {
+        return "";
+    }
 };
 
-export { clonar, semverGreaterThan, dameUrlBase, dameBusqueda };
+const dameBusquedaMultiple = () => {
+    try {
+        let busquedaCompleta = window.location.search
+            .replace("?", "")
+            .split("&");
+
+        return busquedaCompleta.map((element) => {
+            return element.split("=");
+        });
+    } catch (error) {
+        return [];
+    }
+};
+
+export {
+    clonar,
+    semverGreaterThan,
+    dameUrlBase,
+    dameBusqueda,
+    dameBusquedaMultiple,
+};

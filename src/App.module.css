@@ -1,3 +1,8 @@
+:global(body) {
+    background-color: #bbbbbb;
+    overflow-x: hidden;
+}
+
 :local(.contenedorApp) {
     margin-top: 60px;
 }

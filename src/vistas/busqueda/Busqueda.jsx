@@ -2,17 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Busqueda.module.css";
 import Boton from "../../elementos/Boton";
-import { Link } from "react-router-dom";
+import Enlace from "../../elementos/Enlace";
+import { dameBusqueda } from "../../utilidades";
 
-const Busqueda = props => {
+const Busqueda = (props) => {
     const isMounted = useRef(false);
 
-    const [sistemaBuscar, setSistemaBuscar] = useState("");
+    const [sistemaBuscar, setSistemaBuscar] = useState(dameBusqueda());
     const [sistemas, setSistemas] = useState([]);
 
     useEffect(() => {
         // Constructor
         isMounted.current = true;
+
+        if (sistemaBuscar) {
+            buscarSistemas();
+        }
     }, []);
 
     function cambiaTexto(evento) {
@@ -26,10 +31,18 @@ const Busqueda = props => {
     }
 
     async function buscarSistemas() {
+        if (!sistemaBuscar.length > 0) {
+            return;
+        }
+        
+        history.pushState(null, "", "?buscar=" + sistemaBuscar);
+
         let response = await fetch(
-            "https://www.edsm.net/api-v1/systems?systemName=" + sistemaBuscar + "&showId=1&showInformation=1&showPermit=1&showCoordinates=1",
+            "https://www.edsm.net/api-v1/systems?systemName=" +
+                sistemaBuscar +
+                "&showId=1&showInformation=1&showPermit=1&showCoordinates=1",
             {
-                method: "GET"
+                method: "GET",
             }
         );
 
@@ -40,6 +53,7 @@ const Busqueda = props => {
     }
 
     function limpiarSistemas() {
+        history.pushState(null, "", "?");
         setSistemas([]);
     }
 
@@ -47,13 +61,25 @@ const Busqueda = props => {
         <div className={estilos.nada}>
             <label>Sistema:</label>
             &nbsp;
-            <input name="sistema" className={estilos.inputSistema} onKeyUp={pulsaTecla} value={sistemaBuscar} onChange={cambiaTexto} />
+            <input
+                name="sistema"
+                className={estilos.inputSistema}
+                onKeyUp={pulsaTecla}
+                value={sistemaBuscar}
+                onChange={cambiaTexto}
+            />
             &nbsp;&nbsp;
-            <Boton desactivado={sistemaBuscar.length === 0} fnClick={buscarSistemas}>
+            <Boton
+                desactivado={sistemaBuscar.length === 0}
+                fnClick={buscarSistemas}
+            >
                 buscar
             </Boton>
             &nbsp;
-            <Boton desactivado={sistemas.length === 0} fnClick={limpiarSistemas}>
+            <Boton
+                desactivado={sistemas.length === 0}
+                fnClick={limpiarSistemas}
+            >
                 limpiar
             </Boton>
             {sistemas.length > 0 ? (
@@ -75,7 +101,7 @@ const Busqueda = props => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sistemas.map(sistema => {
+                            {sistemas.map((sistema) => {
                                 let info = sistema.information;
                                 if (Object.keys(info).length === 0) {
                                     return;
@@ -85,7 +111,14 @@ const Busqueda = props => {
                                     <tr key={sistema.name}>
                                         <td>
                                             <b>
-                                                <Link to={props.base + "sistema?" + sistema.name}>{sistema.name}</Link>
+                                                <Enlace
+                                                    to={
+                                                        "?sistema=" +
+                                                        sistema.name
+                                                    }
+                                                >
+                                                    {sistema.name}
+                                                </Enlace>
                                             </b>
                                         </td>
                                         <td>{info.allegiance}</td>
