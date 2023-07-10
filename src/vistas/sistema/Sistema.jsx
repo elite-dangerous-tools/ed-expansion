@@ -104,7 +104,7 @@ const Sistema = () => {
                     <td>{faccion.influence * 100}%</td>
                     <td>{faccion.state}</td>
                     <td>{faccion.hapiness}</td>
-                    <td>{faccion.isPlayer}</td>
+                    {/* <td>{faccion.isPlayer}</td> */}
                 </tr>
             );
         });
@@ -263,7 +263,7 @@ const Sistema = () => {
                                 <th>Influencia</th>
                                 <th>Estado</th>
                                 <th>Felicidad</th>
-                                <th>De jugador</th>
+                                {/* <th>De jugador</th> */}
                             </tr>
                         </thead>
                         <tbody>{pintarFacciones()}</tbody>
