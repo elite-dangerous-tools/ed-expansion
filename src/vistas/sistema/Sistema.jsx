@@ -96,12 +96,17 @@ const Sistema = () => {
         return facciones.factions.map((faccion) => {
             let esDominante = faccionDominante === faccion.id;
 
+            let influencia = (faccion.influence * 100).toLocaleString("es-CO");
+
             return (
-                <tr key={faccion.id}>
+                <tr
+                    key={faccion.id}
+                    className={esDominante ? estilos.faccionDominante : ""}
+                >
                     <td>{faccion.name}</td>
                     <td>{faccion.allegiance}</td>
                     <td>{faccion.government}</td>
-                    <td>{faccion.influence * 100}%</td>
+                    <td>{influencia}%</td>
                     <td>{faccion.state}</td>
                     <td>{faccion.hapiness}</td>
                     {/* <td>{faccion.isPlayer}</td> */}
@@ -142,6 +147,7 @@ const Sistema = () => {
                             {sistema.name}
                         </div>
                         <div className={claseColumna}>
+                            <b>Enlaces: </b>
                             <a
                                 target="_blank"
                                 href={
@@ -149,12 +155,11 @@ const Sistema = () => {
                                     sistema.name
                                 }
                             >
-                                Ver en Inara
+                                Inara
                             </a>
-                        </div>
-                        <div className={claseColumna}>
+                            &nbsp;&nbsp;
                             <a target="_blank" href={trafico.url}>
-                                Ver en EDSM
+                                EDSM
                             </a>
                         </div>
 
@@ -209,6 +214,10 @@ const Sistema = () => {
                         <div className={claseColumna}>
                             <b>ultima actualización: </b>
                             {ultimaActualizacion()}
+                        </div>
+                        <div className={claseColumna}>
+                            <b>requiere permiso: </b>
+                            {sistema.requirePermit ? <span className={estilos.rojo}>Sí</span> : <span>No</span>}
                         </div>
                     </div>
                 </fieldset>

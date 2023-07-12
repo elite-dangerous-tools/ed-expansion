@@ -1,14 +1,13 @@
-
 :local(.columna) {
     text-transform: capitalize;
     padding: 3px;
 }
 
 :local(.titulo) {
+    margin: 0.5rem;
     text-transform: capitalize;
     text-align: center;
 }
-
 
 :local(.tablaFacciones) {
     width: 100%;
@@ -34,10 +33,19 @@
     background-color: #ddd;
 }
 
-:local(.tablaFacciones) th {
+:local(.tablaFacciones) thead th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: center;
-    background-color: #04aa6d;
+    background-color: #bbbbbb;
     color: white;
+}
+
+:local(.rojo) {
+    color: red;
+}
+
+tr:local(.faccionDominante) {
+    font-weight: bold;
+    color: orange;
 }
