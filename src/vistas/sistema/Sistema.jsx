@@ -10,6 +10,7 @@ const Sistema = () => {
 
     const [sistema, setSistema] = useState({});
     const [trafico, setTrafico] = useState({});
+    const [muertes, setMuertes] = useState({});
     const [facciones, setFacciones] = useState({});
 
     async function recuperarSistema() {
@@ -29,13 +30,9 @@ const Sistema = () => {
     }
 
     async function recuperarTraficoSistema() {
-        let response = await fetch(
-            "https://www.edsm.net/api-system-v1/traffic?systemName=" +
-                nombreSistema,
-            {
-                method: "GET",
-            }
-        );
+        let response = await fetch("https://www.edsm.net/api-system-v1/traffic?systemName=" + nombreSistema, {
+            method: "GET",
+        });
 
         if (response.status >= 200 && response.status < 300) {
             const datos = await response.json();
@@ -43,10 +40,20 @@ const Sistema = () => {
         }
     }
 
+    async function recuperarMuertesSistema() {
+        let response = await fetch("https://www.edsm.net/api-system-v1/deaths?systemName=" + nombreSistema, {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const datos = await response.json();
+            setMuertes(datos);
+        }
+    }
+
     async function recuperarFaccionesSistema() {
         let response = await fetch(
-            "https://www.edsm.net/api-system-v1/factions?showHistory=1&systemName=" +
-                nombreSistema,
+            "https://www.edsm.net/api-system-v1/factions?showHistory=1&systemName=" + nombreSistema,
             {
                 method: "GET",
             }
@@ -80,11 +87,7 @@ const Sistema = () => {
     }
 
     function pintarFacciones() {
-        if (
-            !facciones ||
-            !facciones.factions ||
-            facciones.factions.length === 0
-        ) {
+        if (!facciones || !facciones.factions || facciones.factions.length === 0) {
             return;
         }
 
@@ -99,10 +102,7 @@ const Sistema = () => {
             let influencia = (faccion.influence * 100).toLocaleString("es-CO");
 
             return (
-                <tr
-                    key={faccion.id}
-                    className={esDominante ? estilos.faccionDominante : ""}
-                >
+                <tr key={faccion.id} className={esDominante ? estilos.faccionDominante : ""}>
                     <td>{faccion.name}</td>
                     <td>{faccion.allegiance}</td>
                     <td>{faccion.government}</td>
@@ -117,9 +117,7 @@ const Sistema = () => {
 
     function ultimaActualizacion() {
         try {
-            return new Date(
-                parseInt(facciones.factions[0].lastUpdate + "000")
-            ).toLocaleString();
+            return new Date(parseInt(facciones.factions[0].lastUpdate + "000")).toLocaleString();
         } catch (error) {
             return "";
         }
@@ -131,6 +129,7 @@ const Sistema = () => {
 
         recuperarSistema();
         recuperarTraficoSistema();
+        recuperarMuertesSistema();
         recuperarFaccionesSistema();
     }, []);
 
@@ -148,13 +147,7 @@ const Sistema = () => {
                         </div>
                         <div className={claseColumna}>
                             <b>Enlaces: </b>
-                            <a
-                                target="_blank"
-                                href={
-                                    "https://inara.cz/elite/starsystem/?search=" +
-                                    sistema.name
-                                }
-                            >
+                            <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                                 Inara
                             </a>
                             &nbsp;&nbsp;
@@ -165,51 +158,35 @@ const Sistema = () => {
 
                         <div className={claseColumna}>
                             <b>lealtad: </b>
-                            {sistema.information
-                                ? sistema.information.allegiance
-                                : undefined}
+                            {sistema.information ? sistema.information.allegiance : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>gobierno: </b>
-                            {sistema.information
-                                ? sistema.information.government
-                                : undefined}
+                            {sistema.information ? sistema.information.government : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>facción dominante: </b>
-                            {sistema.information
-                                ? sistema.information.faction
-                                : undefined}
+                            {sistema.information ? sistema.information.faction : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>estado facción: </b>
-                            {sistema.information
-                                ? sistema.information.factionState
-                                : undefined}
+                            {sistema.information ? sistema.information.factionState : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>población: </b>
-                            {sistema.information
-                                ? sistema.information.population
-                                : undefined}
+                            {sistema.information ? sistema.information.population : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>seguridad: </b>
-                            {sistema.information
-                                ? sistema.information.security
-                                : undefined}
+                            {sistema.information ? sistema.information.security : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>economía principal: </b>
-                            {sistema.information
-                                ? sistema.information.economy
-                                : undefined}
+                            {sistema.information ? sistema.information.economy : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>economía secundaria: </b>
-                            {sistema.information
-                                ? sistema.information.secondEconomy
-                                : undefined}
+                            {sistema.information ? sistema.information.secondEconomy : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>ultima actualización: </b>
@@ -227,15 +204,13 @@ const Sistema = () => {
                 <br />
             </div>
 
-            <div className="col-sm-12 col-md-6">
+            <div className="col-sm-12 col-md-4">
                 <fieldset>
                     <h3 className={estilos.titulo}>trafico</h3>
                     <div className="row">
                         <div className={claseColumna}>
                             <b>Total: </b>
-                            {trafico.traffic
-                                ? trafico.traffic.total
-                                : undefined}
+                            {trafico.traffic ? trafico.traffic.total : undefined}
                         </div>
                         <div className={claseColumna}>
                             <b>Semana: </b>
@@ -249,10 +224,30 @@ const Sistema = () => {
                 </fieldset>
             </div>
 
-            <div className="col-sm-12 col-md-6">
+            <div className="col-sm-12 col-md-4">
                 <fieldset>
                     <h3 className={estilos.titulo}>naves (últimas 24H)</h3>
                     <div className="row">{pintarNaves()}</div>
+                </fieldset>
+            </div>
+
+            <div className="col-sm-12 col-md-4">
+                <fieldset>
+                    <h3 className={estilos.titulo}>muertes</h3>
+                    <div className="row">
+                        <div className={claseColumna}>
+                            <b>Total: </b>
+                            {muertes.deaths ? muertes.deaths.total : undefined}
+                        </div>
+                        <div className={claseColumna}>
+                            <b>Semana: </b>
+                            {muertes.deaths ? muertes.deaths.week : undefined}
+                        </div>
+                        <div className={claseColumna}>
+                            <b>Día: </b>
+                            {muertes.deaths ? muertes.deaths.day : undefined}
+                        </div>
+                    </div>
                 </fieldset>
             </div>
 

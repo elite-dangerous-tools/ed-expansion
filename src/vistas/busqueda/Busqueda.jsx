@@ -48,7 +48,15 @@ const Busqueda = (props) => {
 
         if (response.status >= 200 && response.status < 300) {
             const datos = await response.json();
+            
+            if (datos.length === 1) {
+                let nuevoSistema = datos[0].name;
+                window.location.href = "?sistema=" + nuevoSistema;
+                return;
+            }
+
             setSistemas(datos);
+
         }
     }
 
