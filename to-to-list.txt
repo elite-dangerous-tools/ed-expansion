@@ -1,2 +1,5 @@
 detectar boton atras y adelante del navegador
 añadir loadings: https://www.davidhu.io/react-spinners/
+
+sistemas alrededor:
+https://www.edsm.net/api-v1/sphere-systems?systemName=bokomu&radius=50&showInformation=1

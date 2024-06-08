@@ -1,18 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import estilos from "./Sistema.module.css";
+import estilos from "./SistemaExpandir.module.css";
 
 import { dameBusqueda } from "../../utilidades";
 import Enlace from "../../elementos/Enlace";
 
-const Sistema = () => {
+const SistemaExpandir = () => {
     const isMounted = useRef(false);
     const nombreSistema = useRef(dameBusqueda()).current;
 
     const [sistema, setSistema] = useState({});
     const [trafico, setTrafico] = useState({});
     const [muertes, setMuertes] = useState({});
-    const [facciones, setFacciones] = useState({});
+    const [faccionesSistema, setFaccionesSistema] = useState({});
+    const [faccionesCercanas, setFaccionesCercanas] = useState([
+        {
+            id: 81658,
+            name: "Aces Wild Aerospace Corporation",
+        },
+        {
+            id: 485,
+            name: "Kuun-Lan",
+        },
+        {
+            id: 82551,
+            name: "Storm Seekers",
+        },
+    ]);
+    const [faccionExpandir, setFaccionExpandir] = useState(82551);
 
     async function recuperarSistema() {
         let response = await fetch(
@@ -62,7 +77,7 @@ const Sistema = () => {
 
         if (response.status >= 200 && response.status < 300) {
             const datos = await response.json();
-            setFacciones(datos);
+            setFaccionesSistema(datos);
         }
     }
 
@@ -88,16 +103,16 @@ const Sistema = () => {
     }
 
     function pintarFacciones() {
-        if (!facciones || !facciones.factions || facciones.factions.length === 0) {
+        if (!faccionesSistema || !faccionesSistema.factions || faccionesSistema.factions.length === 0) {
             return;
         }
 
         // "recoveringStates": [],
         // "pendingStates": [],
 
-        let faccionDominante = facciones.controllingFaction.id;
+        let faccionDominante = faccionesSistema.controllingFaction.id;
 
-        return facciones.factions.map((faccion) => {
+        return faccionesSistema.factions.map((faccion) => {
             let esDominante = faccionDominante === faccion.id;
 
             let influencia = (faccion.influence * 100).toLocaleString("es-CO");
@@ -118,10 +133,39 @@ const Sistema = () => {
 
     function ultimaActualizacion() {
         try {
-            return new Date(parseInt(facciones.factions[0].lastUpdate + "000")).toLocaleString();
+            return new Date(parseInt(faccionesSistema.factions[0].lastUpdate + "000")).toLocaleString();
         } catch (error) {
             return "";
         }
+    }
+
+    function cambiaFaccion(evento) {
+        setFaccionExpandir(evento.target.value);
+    }
+
+    // function pulsaTecla(evento) {
+    //     if (evento.key === "Enter" || evento.keyCode === 13) {
+    //         // calcularExpansiones();
+    //     }
+    // }
+
+    async function calcularExpansiones() {
+        // if (!sistemaBuscar.length > 0) {
+        //     return;
+        // }
+        // history.pushState(null, "", "?buscar=" + sistemaBuscar);
+        // let response = await fetch(
+        //     "https://www.edsm.net/api-v1/systems?systemName=" +
+        //         sistemaBuscar +
+        //         "&showId=1&showInformation=1&showPermit=1&showCoordinates=1",
+        //     {
+        //         method: "GET",
+        //     }
+        // );
+        // if (response.status >= 200 && response.status < 300) {
+        //     const datos = await response.json();
+        //     setSistemas(datos);
+        // }
     }
 
     useEffect(() => {
@@ -155,8 +199,6 @@ const Sistema = () => {
                             <a target="_blank" href={trafico.url}>
                                 EDSM
                             </a>
-                            &nbsp;&nbsp;
-                            <Enlace to={"?sistemaExpandir=" + sistema.name}>Expandir aquí</Enlace>
                         </div>
 
                         <div className={claseColumna}>
@@ -277,8 +319,41 @@ const Sistema = () => {
                     </table>
                 </fieldset>
             </div>
+
+            <div className="col-sm-12">
+                <br />
+            </div>
+
+            <div className="col-sm-12">
+                <fieldset>
+                    <h3 className={estilos.titulo}>expansiones</h3>
+                    <label>Facción:</label>
+                    &nbsp;
+                    <select
+                        name="faccion"
+                        onChange={cambiaFaccion}
+                        value={faccionExpandir}
+                        className={estilos.selectFaccion}
+                    >
+                        {faccionesCercanas.map((faccion) => {
+                            return (
+                                <option key={faccion.id} value={faccion.id}>
+                                    {faccion.name}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    &nbsp;&nbsp;
+
+                    <Enlace to={"?sistemaExpandir=" + sistema.name + "&faccion=" + faccionExpandir}>Calcular</Enlace>
+
+                    {/* <Boton desactivado={faccionExpandir.length === 0} fnClick={calcularExpansiones}>
+                        Calcular
+                    </Boton> */}
+                </fieldset>
+            </div>
         </div>
     );
 };
 
-export default Sistema;
+export default SistemaExpandir;
