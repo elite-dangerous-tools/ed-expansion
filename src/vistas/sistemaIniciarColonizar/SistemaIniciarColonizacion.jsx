@@ -29,13 +29,13 @@ const SistemaIniciarColonizacion = () => {
         },
         {
             id: "1",
-            valor: 16,
-            texto: "16 AL (Por defecto)",
+            valor: 15,
+            texto: "15 AL (Por defecto)",
         },
         {
             id: "2",
-            valor: 32,
-            texto: "32 AL (Más lento)",
+            valor: 30,
+            texto: "30 AL (Más lento)",
         },
     ];
 
