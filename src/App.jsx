@@ -7,12 +7,14 @@ import "./grid.css";
 import estilos from "./App.module.css";
 
 import { dameUrlBase, semverGreaterThan } from "./utilidades";
+import { ProveedorRuta } from "./elementos/ProveedorRuta";
+import Enlace from "./elementos/Enlace";
+
 import NoMatch from "./vistas/noMatch/NoMatch";
 import Busqueda from "./vistas/busqueda/Busqueda";
 import Sistema from "./vistas/sistema/Sistema";
-import Enlace from "./elementos/Enlace";
-import { ProveedorRuta } from "./elementos/ProveedorRuta";
-import SistemaExpandir from "./vistas/sistemaExpandir/SistemaExpandir";
+import SistemaIniciarColonizacion from "./vistas/sistemaIniciarColonizar/SistemaIniciarColonizacion";
+// import SistemaExpandir from "./vistas/sistemaExpandir/SistemaExpandir";
 
 const App = (props) => {
     const isMounted = useRef(false);
@@ -60,8 +62,11 @@ const App = (props) => {
             case ruta.includes("?sistema="):
                 return <Sistema />;
 
-            case ruta.includes("?sistemaExpandir="):
-                return <SistemaExpandir />;
+            case ruta.includes("?sistemaIniciarColonizacion="):
+                return <SistemaIniciarColonizacion />;
+
+            // case ruta.includes("?sistemaExpandir="):
+            //     return <SistemaExpandir />;
 
             default:
                 return <NoMatch />;

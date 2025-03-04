@@ -68,7 +68,7 @@ const Busqueda = (props) => {
 
     return (
         <div className={estilos.nada}>
-            <label>Sistema:</label>
+            <label>Sistema Origen:</label>
             &nbsp;
             <input
                 name="sistema"

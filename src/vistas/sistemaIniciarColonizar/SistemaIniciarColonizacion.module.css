@@ -1,0 +1,35 @@
+:local(.selectAlcance) {
+    width: 150px;
+}
+
+:local(.tablaSistemas) {
+    width: 100%;
+}
+
+:local(.tablaSistemas) {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+:local(.tablaSistemas) td,
+:local(.tablaSistemas) th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+:local(.tablaSistemas) tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+:local(.tablaSistemas) tr:hover {
+    background-color: #ddd;
+}
+
+:local(.tablaSistemas) thead th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #bbbbbb;
+    color: white;
+}

@@ -1,6 +1,6 @@
 {
     "name": "ed-expansion",
-    "version": "0.6.4",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "packageManager": "yarn@1.22.22",

@@ -54,3 +54,7 @@ tr:local(.faccionDominante) {
     width: 275px;
     max-width: 50vw;
 }
+
+:local(.columnasAltas) > div > fieldset {
+    height: 100%;
+}
