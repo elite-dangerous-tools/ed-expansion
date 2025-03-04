@@ -112,9 +112,9 @@ const Busqueda = (props) => {
                         <tbody>
                             {sistemas.map((sistema) => {
                                 let info = sistema.information;
-                                if (Object.keys(info).length === 0) {
-                                    return;
-                                }
+                                // if (Object.keys(info).length === 0) {
+                                //     return;
+                                // }
 
                                 return (
                                     <tr key={sistema.name}>
