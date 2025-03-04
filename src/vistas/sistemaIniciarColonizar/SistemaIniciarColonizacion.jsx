@@ -72,11 +72,11 @@ const SistemaIniciarColonizacion = () => {
 
     function recuperarInfoSistemas() {
         sistemasAlcance.forEach((sistema) => {
-            recuperarInfoSistema(sistema.name);
+            recuperarInfoSistema(sistema.name, sistema.distance);
         });
     }
 
-    async function recuperarInfoSistema(nombre) {
+    async function recuperarInfoSistema(nombre, distanciaOrigen) {
         // Comprobamos que no haya nada, ni otros comandantes
         let response = await fetch("https://www.edsm.net/api-system-v1/stations?systemName=" + nombre, {
             method: "GET",
@@ -87,11 +87,12 @@ const SistemaIniciarColonizacion = () => {
 
             if (infoSistema.stations && infoSistema.stations.length > 0) {
                 // Si tiene facciones y no tenia info de sistema, ya esta siendo colonizado
+                infoSistema.distanciaOrigen = distanciaOrigen;
                 sistemasColonizando.push(infoSistema);
                 sistemasRecuperados++;
                 comprobarFinCarga();
             } else {
-                recuperarCuerposSistema(nombre);
+                recuperarCuerposSistema(nombre, distanciaOrigen);
             }
         } else {
             sistemasRecuperados++;
@@ -99,7 +100,7 @@ const SistemaIniciarColonizacion = () => {
         }
     }
 
-    async function recuperarCuerposSistema(nombre) {
+    async function recuperarCuerposSistema(nombre, distanciaOrigen) {
         // Sistemas como este fallan al recuperar
         // WISE 1405+5534
         let response = await fetch("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre, {
@@ -108,7 +109,7 @@ const SistemaIniciarColonizacion = () => {
 
         if (response.status >= 200 && response.status < 300) {
             const infoSistema = await response.json();
-
+            infoSistema.distanciaOrigen = distanciaOrigen;
             sistemasLibres.push(infoSistema);
         }
 
@@ -172,6 +173,7 @@ const SistemaIniciarColonizacion = () => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
+                    <td>{sistema.distanciaOrigen}</td>
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
                     <td>{aterrizables}</td>
@@ -258,6 +260,7 @@ const SistemaIniciarColonizacion = () => {
                         <thead>
                             <tr>
                                 <th>Nombre</th>
+                                <th>Distancia Origen</th>
                                 <th>Estrellas</th>
                                 <th>Planetas y Satélites</th>
                                 <th>Cuerpos aterrizables</th>
