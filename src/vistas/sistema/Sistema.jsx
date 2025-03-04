@@ -156,7 +156,7 @@ const Sistema = () => {
                                 EDSM
                             </a>
                             &nbsp;&nbsp;
-                            <Enlace to={"?sistemaExpandir=" + sistema.name}>Expandir aquí</Enlace>
+                            {/* <Enlace to={"?sistemaExpandir=" + sistema.name}>Expandir aquí</Enlace> */}
                         </div>
 
                         <div className={claseColumna}>

@@ -3,6 +3,7 @@
     "version": "0.6.4",
     "private": true,
     "type": "module",
+    "packageManager": "yarn@1.22.22",
     "dependencies": {
         "chokidar": "^3.5.3",
         "esbuild": "^0.15.13",
