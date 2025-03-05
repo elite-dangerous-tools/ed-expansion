@@ -87,8 +87,8 @@ const SistemaIniciarColonizacion = () => {
     async function recuperarListaSistemas() {
         let response = await fetch(dameUrlBase() + "sistemas550.json", {
             method: "GET",
-            mode: "no-cors",
-            cache: "no-cache"
+            // mode: "no-cors",
+            // cache: "no-cache"
         });
 
         if (response.status >= 200 && response.status < 300) {
