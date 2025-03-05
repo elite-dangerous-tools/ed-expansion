@@ -16,10 +16,12 @@ const SistemaIniciarColonizacion = () => {
 
     const [sistLibres, setSistLibres] = useState([]);
     const [sistOcupados, setSistOcupados] = useState([]);
+    const [sistPoblados, setSistPoblados] = useState([]);
 
     let sistemasRecuperados = 0;
     let sistemasColonizando = [];
     let sistemasLibres = [];
+    let sistemasAntiguos = [];
 
     const alcancesDisponibles = [
         {
@@ -101,17 +103,23 @@ const SistemaIniciarColonizacion = () => {
 
     async function recuperarInfoSistema(nombre, distanciaOrigen) {
         // Comprobamos que no haya nada, ni otros comandantes
-        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/stations?systemName=" + nombre), {
+        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/factions?systemName=" + nombre), {
             method: "GET"
         });
 
         if (response.status >= 200 && response.status < 300) {
             const infoSistema = await response.json();
 
-            if (infoSistema.stations && infoSistema.stations.length > 0) {
-                // Si tiene facciones y no tenia info de sistema, ya esta siendo colonizado
+            if (infoSistema.factions && infoSistema.factions.length === 1) {
+                // Si tiene una facción, ya esta siendo colonizado
                 infoSistema.distanciaOrigen = distanciaOrigen;
                 sistemasColonizando.push(infoSistema);
+                sistemasRecuperados++;
+                comprobarFinCarga();
+            } else if (infoSistema.factions && infoSistema.factions.length > 1) {
+                // Si tiene más facciones es un sistema poblado
+                infoSistema.distanciaOrigen = distanciaOrigen;
+                sistemasAntiguos.push(infoSistema);
                 sistemasRecuperados++;
                 comprobarFinCarga();
             } else {
@@ -141,9 +149,10 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function comprobarFinCarga() {
-        if (cargando === true && sistemasAlcance.length === sistemasColonizando.length + sistemasLibres.length) {
+        if (cargando === true && sistemasAlcance.length === (sistemasColonizando.length + sistemasLibres.length + sistemasAntiguos.length)) {
             setSistLibres(sistemasLibres);
             setSistOcupados(sistemasColonizando);
+            setSistPoblados(sistemasAntiguos);
             setCargando(false);
         }
     }
@@ -156,6 +165,7 @@ const SistemaIniciarColonizacion = () => {
             setCargando(true);
             setSistLibres([]);
             setSistOcupados([]);
+            setSistPoblados([]);
             setSistemasAlcance([]);
         }
     }
@@ -240,6 +250,25 @@ const SistemaIniciarColonizacion = () => {
         });
     }
 
+    function pintarSistemasPoblados() {
+        return sistPoblados.map(sistema => {
+            return (
+                <tr key={sistema.id}>
+                    <td>{sistema.name}</td>
+                    <td>
+                        <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
+                            Inara
+                        </a>
+                        &nbsp;&nbsp;
+                        <a target="_blank" href={"https://www.edsm.net/en/system/id/" + sistema.id + "/name/" + sistema.name}>
+                            EDSM
+                        </a>
+                    </td>
+                </tr>
+            );
+        });
+    }
+
     useEffect(() => {
         // Constructor
         isMounted.current = true;
@@ -292,7 +321,7 @@ const SistemaIniciarColonizacion = () => {
 
             <div className="row">
                 <div className="col-sm-12">
-                    <h4>Sistemas libres:</h4>
+                    <h4>Sistemas probablemente libres:</h4>
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
@@ -314,7 +343,7 @@ const SistemaIniciarColonizacion = () => {
 
             <div className="row">
                 <div className="col-sm-12">
-                    <h4>Sistemas siendo colonizados por jugadores:</h4>
+                    <h4>Sistemas en proceso de colonizar por jugadores:</h4>
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
@@ -323,6 +352,21 @@ const SistemaIniciarColonizacion = () => {
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasColonizando()}</tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Sistemas poblados:</h4>
+                    <table className={estilos.tablaSistemas}>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Enlaces</th>
+                            </tr>
+                        </thead>
+                        <tbody>{cargando ? null : pintarSistemasPoblados()}</tbody>
                     </table>
                 </div>
             </div>
