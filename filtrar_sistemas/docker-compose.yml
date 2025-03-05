@@ -4,10 +4,16 @@ name: edsystems
 
 services:
     rust:
+        container_name: edsystem-rust
         build: .
         volumes:
             - .:/app
-        command: ["cargo", "build", "--release"]
+            
+        # tty: true
+        # command: /bin/bash
+
+        command: /usr/src/ejecutable
+
 
 networks:
     default:

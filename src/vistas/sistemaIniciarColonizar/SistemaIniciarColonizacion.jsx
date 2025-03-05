@@ -2,16 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./SistemaIniciarColonizacion.module.css";
 
-import { dameBusqueda } from "../../utilidades";
-import Enlace from "../../elementos/Enlace";
+import { dameBusqueda, dameUrlBase } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
 const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
     const nombreSistema = useRef(dameBusqueda()).current;
 
-    const [cargando, setCargando] = useState(false);
+    const [cargando, setCargando] = useState(true);
     const [alcance, setAlcance] = useState("0");
+    const [sistemas550, setSistemas550] = useState([]);
     const [sistemasAlcance, setSistemasAlcance] = useState([]);
 
     const [sistLibres, setSistLibres] = useState([]);
@@ -25,23 +25,36 @@ const SistemaIniciarColonizacion = () => {
         {
             id: "0",
             valor: 0,
-            texto: "",
+            texto: ""
         },
         {
             id: "1",
             valor: 15,
-            texto: "15 AL (Por defecto)",
+            texto: "15 AL (Por defecto)"
         },
         {
             id: "2",
             valor: 30,
-            texto: "30 AL (Más lento)",
-        },
+            texto: "30 AL (Más lento)"
+        }
     ];
+
+    function distanciaSistema(sistemaOrigen, sistemaNuevo) {
+        const x1 = sistemaOrigen.c.x;
+        const y1 = sistemaOrigen.c.y;
+        const z1 = sistemaOrigen.c.z;
+
+        const x2 = sistemaNuevo.c.x;
+        const y2 = sistemaNuevo.c.y;
+        const z2 = sistemaNuevo.c.z;
+
+        const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2) * 1.0);
+        return d;
+    }
 
     async function recuperarSistemasAlcance() {
         sistemasRecuperados = 0;
-        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
+        let radio = alcancesDisponibles.find(fila => fila.id === alcance).valor;
         if (radio <= 0) {
             setCargando(false);
             setSistLibres([]);
@@ -50,44 +63,48 @@ const SistemaIniciarColonizacion = () => {
             return;
         }
 
-        let response = await fetch("https://www.edsm.net/api-v1/cube-systems?systemName=" + nombreSistema + "&radius=" + radio + "&showInformation=1", {
-            method: "GET",
+        let sistemaOrigen = sistemas550.find(fila => fila.n === nombreSistema);
+
+        let sistemasValidos = [];
+        sistemas550.forEach(sistema => {
+            let anyosLuz = distanciaSistema(sistemaOrigen, sistema);
+
+            if (anyosLuz <= radio) {
+                sistemasValidos.push({
+                    name: sistema.n,
+                    distance: anyosLuz
+                });
+            }
         });
 
-        if (response.status >= 200 && response.status < 300) {
-            const sistemas = await response.json();
-
-            let sistemasValidos = [];
-            if (Array.isArray(sistemas) && sistemas.length > 0) {
-                sistemas.forEach((sistema) => {
-                    if (Object.keys(sistema.information).length > 0) {
-                        return;
-                    }
-
-                    sistemasValidos.push(sistema);
-                });
-
-                setSistemasAlcance(sistemasValidos);
-                return;
-            }
-        }
-
-        setCargando(false);
-        setSistLibres([]);
-        setSistOcupados([]);
-        setSistemasAlcance([]);
+        setSistemasAlcance(sistemasValidos);
     }
 
     function recuperarInfoSistemas() {
-        sistemasAlcance.forEach((sistema) => {
+        sistemasAlcance.forEach(sistema => {
             recuperarInfoSistema(sistema.name, sistema.distance);
         });
+    }
+
+    async function recuperarListaSistemas() {
+        let response = await fetch(dameUrlBase() + "sistemas550.json", {
+            method: "GET",
+            mode: "no-cors",
+            cache: "no-cache"
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const sistemasBBDD = await response.json();
+            setSistemas550(sistemasBBDD);
+        }
+
+        setCargando(false);
     }
 
     async function recuperarInfoSistema(nombre, distanciaOrigen) {
         // Comprobamos que no haya nada, ni otros comandantes
         let response = await fetch("https://www.edsm.net/api-system-v1/stations?systemName=" + nombre, {
-            method: "GET",
+            method: "GET"
         });
 
         if (response.status >= 200 && response.status < 300) {
@@ -112,7 +129,7 @@ const SistemaIniciarColonizacion = () => {
         // Sistemas como este fallan al recuperar
         // WISE 1405+5534
         let response = await fetch("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre, {
-            method: "GET",
+            method: "GET"
         });
 
         if (response.status >= 200 && response.status < 300) {
@@ -142,7 +159,7 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasLibres() {
-        return sistLibres.map((sistema) => {
+        return sistLibres.map(sistema => {
             let estrellas = 0;
             let planetasLunas = 0;
             let cinturones = 0;
@@ -154,7 +171,7 @@ const SistemaIniciarColonizacion = () => {
                 return;
             }
 
-            sistema.bodies.forEach((cuerpo) => {
+            sistema.bodies.forEach(cuerpo => {
                 if (cuerpo.type === "Star") {
                     estrellas++;
 
@@ -203,7 +220,7 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasColonizando() {
-        return sistOcupados.map((sistema) => {
+        return sistOcupados.map(sistema => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
@@ -224,12 +241,16 @@ const SistemaIniciarColonizacion = () => {
     useEffect(() => {
         // Constructor
         isMounted.current = true;
+
+        recuperarListaSistemas();
     }, []);
 
     useEffect(() => {
         // hemos recibido sistemas validos
 
         if (sistemasAlcance.length > 0) {
+            console.log("hemos recibido sistemas validos");
+            console.log(sistemasAlcance);
             recuperarInfoSistemas();
         }
     }, [sistemasAlcance]);
@@ -257,7 +278,7 @@ const SistemaIniciarColonizacion = () => {
                 <div className="col-sm-12">
                     <label>Distancia máxima: </label>
                     <select name="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
-                        {alcancesDisponibles.map((distancia) => {
+                        {alcancesDisponibles.map(distancia => {
                             return (
                                 <option key={distancia.id} value={distancia.id}>
                                     {distancia.texto}

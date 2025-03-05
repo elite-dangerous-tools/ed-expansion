@@ -1,11 +1,16 @@
-# Usamos una imagen base de Rust oficial para compilar el proyecto
+# Imagen base oficial de Rust
 FROM rust:latest
 
-# Establecemos el directorio de trabajo en el contenedor
-WORKDIR /app
+# Crear el directorio de trabajo
+WORKDIR /usr/src/app
 
-# Copiamos el archivo Cargo.toml y Cargo.lock (si los tienes) al contenedor
+# Copiar los archivos del proyecto
 COPY Cargo.toml ./
-COPY filtrar_json.rs ./
+COPY src ./src
 
+# Compilar el proyecto en modo release
 RUN cargo build --release
+
+# Copiar el binario compilado a la carpeta de salida
+RUN cp target/release/mi_proyecto /usr/src/ejecutable
+

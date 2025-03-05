@@ -26,3 +26,6 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 *-lock.*
+
+systems2000.json
+systemsWithCoordinates.json
