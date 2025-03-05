@@ -56,10 +56,6 @@ const SistemaIniciarColonizacion = () => {
         sistemasRecuperados = 0;
         let radio = alcancesDisponibles.find(fila => fila.id === alcance).valor;
         if (radio <= 0) {
-            setCargando(false);
-            setSistLibres([]);
-            setSistOcupados([]);
-            setSistemasAlcance([]);
             return;
         }
 
@@ -96,14 +92,16 @@ const SistemaIniciarColonizacion = () => {
         if (response.status >= 200 && response.status < 300) {
             const sistemasBBDD = await response.json();
             setSistemas550(sistemasBBDD);
+            setCargando(false);
+        } else {
+            alert("Fallo al recuperar los sistemas de la burbuja");
+            setCargando(false);
         }
-
-        setCargando(false);
     }
 
     async function recuperarInfoSistema(nombre, distanciaOrigen) {
         // Comprobamos que no haya nada, ni otros comandantes
-        let response = await fetch("https://www.edsm.net/api-system-v1/stations?systemName=" + nombre, {
+        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/stations?systemName=" + nombre), {
             method: "GET"
         });
 
@@ -128,7 +126,7 @@ const SistemaIniciarColonizacion = () => {
     async function recuperarCuerposSistema(nombre, distanciaOrigen) {
         // Sistemas como este fallan al recuperar
         // WISE 1405+5534
-        let response = await fetch("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre, {
+        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre), {
             method: "GET"
         });
 
@@ -151,11 +149,15 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function cambiaAlcance(evento) {
-        setCargando(true);
-        setSistLibres([]);
-        setSistOcupados([]);
-        setAlcance(evento.target.value);
-        setSistemasAlcance([]);
+        const nuevoAlcance = evento.target.value;
+        setAlcance(nuevoAlcance);
+
+        if (nuevoAlcance !== "0") {
+            setCargando(true);
+            setSistLibres([]);
+            setSistOcupados([]);
+            setSistemasAlcance([]);
+        }
     }
 
     function pintarSistemasLibres() {
@@ -249,8 +251,6 @@ const SistemaIniciarColonizacion = () => {
         // hemos recibido sistemas validos
 
         if (sistemasAlcance.length > 0) {
-            console.log("hemos recibido sistemas validos");
-            console.log(sistemasAlcance);
             recuperarInfoSistemas();
         }
     }, [sistemasAlcance]);
