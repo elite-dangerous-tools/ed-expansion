@@ -43,10 +43,14 @@ const SistemaIniciarColonizacion = () => {
         sistemasRecuperados = 0;
         let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
         if (radio <= 0) {
+            setCargando(false);
+            setSistLibres([]);
+            setSistOcupados([]);
+            setSistemasAlcance([]);
             return;
         }
 
-        let response = await fetch("https://www.edsm.net/api-v1/sphere-systems?systemName=" + nombreSistema + "&radius=" + radio + "&showInformation=1", {
+        let response = await fetch("https://www.edsm.net/api-v1/cube-systems?systemName=" + nombreSistema + "&radius=" + radio + "&showInformation=1", {
             method: "GET",
         });
 
@@ -64,10 +68,14 @@ const SistemaIniciarColonizacion = () => {
                 });
 
                 setSistemasAlcance(sistemasValidos);
+                return;
             }
-        } else {
-            setSistemasAlcance([]);
         }
+
+        setCargando(false);
+        setSistLibres([]);
+        setSistOcupados([]);
+        setSistemasAlcance([]);
     }
 
     function recuperarInfoSistemas() {
@@ -238,6 +246,14 @@ const SistemaIniciarColonizacion = () => {
                 <div className="col-sm-12">
                     <Progreso visible={cargando} />
                 </div>
+
+                <div className="col-sm-12">
+                    <b>Sistema: </b>
+                    {nombreSistema}
+                    <br />
+                    <br />
+                </div>
+
                 <div className="col-sm-12">
                     <label>Distancia máxima: </label>
                     <select name="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>

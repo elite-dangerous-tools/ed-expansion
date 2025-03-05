@@ -1,0 +1,15 @@
+version: '3.8'
+
+name: edsystems
+
+services:
+    rust:
+        build: .
+        volumes:
+            - .:/app
+        command: ["cargo", "build", "--release"]
+
+networks:
+    default:
+        name: proxylan
+
