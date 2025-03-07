@@ -45,3 +45,7 @@
 :local(.sistemasAzul) {
     color: blue;
 }
+
+:local(.contador) {
+    text-align: center;
+}

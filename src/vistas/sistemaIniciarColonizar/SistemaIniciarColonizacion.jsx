@@ -9,6 +9,8 @@ const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
     const nombreSistema = useRef(dameBusqueda()).current;
 
+    const [sistemasRecuperadosLoading, setSistemasRecuperadosLoading] = useState(0);
+
     const [cargando, setCargando] = useState(true);
     const [alcance, setAlcance] = useState("0");
     const [anillo, setAnillo] = useState(false);
@@ -42,16 +44,16 @@ const SistemaIniciarColonizacion = () => {
             valor: 30,
             texto: "30 AL (Más lento)",
         },
-        // {
-        //     id: "3",
-        //     valor: 60,
-        //     texto: "60 AL (Muy lento)",
-        // },
-        // {
-        //     id: "4",
-        //     valor: 100,
-        //     texto: "100 AL (Puede tardar varios minutos)",
-        // },
+        {
+            id: "3",
+            valor: 60,
+            texto: "60 AL (Muy lento)",
+        },
+        {
+            id: "4",
+            valor: 100,
+            texto: "100 AL (Puede tardar varios minutos)",
+        },
     ];
 
     function distanciaSistema(sistemaOrigen, sistemaNuevo) {
@@ -91,16 +93,26 @@ const SistemaIniciarColonizacion = () => {
         setSistemasAlcance(sistemasValidos);
     }
 
-    function recuperarInfoSistemas() {
+    async function recuperarInfoSistemas() {
         let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
         if (radio <= 0) {
             return;
         }
 
         let modoLento = radio > 30;
-        sistemasAlcance.forEach((sistema) => {
-            recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
-        });
+        let indice = 0;
+        for (const key in sistemasAlcance) {
+            const sistema = sistemasAlcance[key];
+
+            if (modoLento || indice % 10 === 0) {
+                // En modo lento o cada 10 esperamos
+                await recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
+            } else {
+                recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
+            }
+
+            indice++;
+        }
     }
 
     async function recuperarListaSistemas() {
@@ -161,6 +173,8 @@ const SistemaIniciarColonizacion = () => {
             sistemasRecuperados++;
             comprobarFinCarga();
         }
+
+        setSistemasRecuperadosLoading(sistemasRecuperados);
     }
 
     async function recuperarCuerposSistema(nombre, distanciaOrigen) {
@@ -177,6 +191,8 @@ const SistemaIniciarColonizacion = () => {
 
         sistemasRecuperados++;
         comprobarFinCarga();
+
+        setSistemasRecuperadosLoading(sistemasRecuperados);
     }
 
     function comprobarFinCarga() {
@@ -391,6 +407,11 @@ const SistemaIniciarColonizacion = () => {
             <div className="row">
                 <div className="col-sm-12">
                     <Progreso visible={cargando} />
+                    {cargando === true && sistemasAlcance.length > 0 ? (
+                        <div className={estilos.contador}>
+                            {sistemasRecuperadosLoading} de {sistemasAlcance.length}
+                        </div>
+                    ) : null}
                 </div>
 
                 <div className="col-sm-12">
