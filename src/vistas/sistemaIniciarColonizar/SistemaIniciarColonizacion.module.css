@@ -33,3 +33,15 @@
     background-color: #bbbbbb;
     color: white;
 }
+
+:local(.sistemasRojo) {
+    color: red;
+}
+
+:local(.sistemasVerde) {
+    color: green;
+}
+
+:local(.sistemasAzul) {
+    color: blue;
+}

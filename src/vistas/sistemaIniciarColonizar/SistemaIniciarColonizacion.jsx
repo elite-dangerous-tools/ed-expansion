@@ -13,6 +13,7 @@ const SistemaIniciarColonizacion = () => {
     const [alcance, setAlcance] = useState("0");
     const [anillo, setAnillo] = useState(false);
     const [cinturon, setCinturon] = useState(false);
+    const [aterrizable, setAterrizable] = useState(false);
     const [sistemas550, setSistemas550] = useState([]);
     const [sistemasAlcance, setSistemasAlcance] = useState([]);
 
@@ -29,23 +30,28 @@ const SistemaIniciarColonizacion = () => {
         {
             id: "0",
             valor: 0,
-            texto: ""
+            texto: "",
         },
         {
             id: "1",
             valor: 15,
-            texto: "15 AL (Por defecto)"
+            texto: "15 AL (Por defecto)",
         },
         {
             id: "2",
             valor: 30,
-            texto: "30 AL (Más lento)"
+            texto: "30 AL (Más lento)",
         },
-        {
-            id: "3",
-            valor: 30,
-            texto: "60 AL (Muy lento)"
-        }
+        // {
+        //     id: "3",
+        //     valor: 60,
+        //     texto: "60 AL (Muy lento)",
+        // },
+        // {
+        //     id: "4",
+        //     valor: 100,
+        //     texto: "100 AL (Puede tardar varios minutos)",
+        // },
     ];
 
     function distanciaSistema(sistemaOrigen, sistemaNuevo) {
@@ -58,26 +64,26 @@ const SistemaIniciarColonizacion = () => {
         const z2 = sistemaNuevo.c.z;
 
         const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2) * 1.0);
-        return d;
+        return d.toFixed(3);
     }
 
-    async function recuperarSistemasAlcance() {
+    function recuperarSistemasAlcance() {
         sistemasRecuperados = 0;
-        let radio = alcancesDisponibles.find(fila => fila.id === alcance).valor;
+        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
         if (radio <= 0) {
             return;
         }
 
-        let sistemaOrigen = sistemas550.find(fila => fila.n === nombreSistema);
+        let sistemaOrigen = sistemas550.find((fila) => fila.n.toLocaleLowerCase() === nombreSistema.toLocaleLowerCase());
 
         let sistemasValidos = [];
-        sistemas550.forEach(sistema => {
+        sistemas550.forEach((sistema) => {
             let anyosLuz = distanciaSistema(sistemaOrigen, sistema);
 
             if (anyosLuz <= radio) {
                 sistemasValidos.push({
                     name: sistema.n,
-                    distance: anyosLuz
+                    distance: anyosLuz,
                 });
             }
         });
@@ -86,14 +92,20 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function recuperarInfoSistemas() {
-        sistemasAlcance.forEach(sistema => {
-            recuperarInfoSistema(sistema.name, sistema.distance);
+        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
+        if (radio <= 0) {
+            return;
+        }
+
+        let modoLento = radio > 30;
+        sistemasAlcance.forEach((sistema) => {
+            recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
         });
     }
 
     async function recuperarListaSistemas() {
         let response = await fetch(dameUrlBase() + "sistemas550.json", {
-            method: "GET"
+            method: "GET",
             // mode: "no-cors",
             // cache: "no-cache"
         });
@@ -108,10 +120,18 @@ const SistemaIniciarColonizacion = () => {
         }
     }
 
-    async function recuperarInfoSistema(nombre, distanciaOrigen) {
+    async function recuperarInfoSistema(nombre, distanciaOrigen, modoLento) {
+        if (modoLento) {
+            await funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+        } else {
+            funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+        }
+    }
+
+    async function funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento) {
         // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
         let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/factions?systemName=" + nombre), {
-            method: "GET"
+            method: "GET",
         });
 
         // Comprobamos que no haya nada, ni otros comandantes
@@ -131,7 +151,11 @@ const SistemaIniciarColonizacion = () => {
                 sistemasRecuperados++;
                 comprobarFinCarga();
             } else {
-                recuperarCuerposSistema(nombre, distanciaOrigen);
+                if (modoLento) {
+                    await recuperarCuerposSistema(nombre, distanciaOrigen);
+                } else {
+                    recuperarCuerposSistema(nombre, distanciaOrigen);
+                }
             }
         } else {
             sistemasRecuperados++;
@@ -142,7 +166,7 @@ const SistemaIniciarColonizacion = () => {
     async function recuperarCuerposSistema(nombre, distanciaOrigen) {
         // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
         let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre), {
-            method: "GET"
+            method: "GET",
         });
 
         if (response.status >= 200 && response.status < 300) {
@@ -185,16 +209,20 @@ const SistemaIniciarColonizacion = () => {
         setCinturon(evento.target.value);
     }
 
+    function cambiaAterrizable(evento) {
+        setAterrizable(evento.target.value);
+    }
+
     function pintarSistemasLibresExcluidos() {
-        return pintarSistemasLibres();
+        return pintarSistemasLibres(false);
     }
 
     function pintarSistemasLibresFiltrados() {
-        return pintarSistemasLibres();
+        return pintarSistemasLibres(true);
     }
 
-    function pintarSistemasLibres(cumplenFiltros=undefined) {
-        return sistLibres.map(sistema => {
+    function pintarSistemasLibres(cumplenFiltros = undefined) {
+        return sistLibres.map((sistema) => {
             let estrellas = 0;
             let planetasLunas = 0;
             let cinturones = 0;
@@ -206,7 +234,7 @@ const SistemaIniciarColonizacion = () => {
                 return;
             }
 
-            sistema.bodies.forEach(cuerpo => {
+            sistema.bodies.forEach((cuerpo) => {
                 if (cuerpo.type === "Star") {
                     estrellas++;
 
@@ -230,10 +258,55 @@ const SistemaIniciarColonizacion = () => {
                 }
             });
 
+            let cumpleTodosFiltros = true;
+            if (anillo === "SI") {
+                // Debe tener al menos uno
+                if (anillos <= 0) {
+                    cumpleTodosFiltros = false;
+                }
+            } else if (anillo === "NO") {
+                // No debe tener ni uno
+                if (anillos > 0) {
+                    cumpleTodosFiltros = false;
+                }
+            }
+
+            if (cinturon === "SI") {
+                // Debe tener al menos uno
+                if (cinturones <= 0) {
+                    cumpleTodosFiltros = false;
+                }
+            } else if (cinturon === "NO") {
+                // No debe tener ni uno
+                if (cinturones > 0) {
+                    cumpleTodosFiltros = false;
+                }
+            }
+
+            if (aterrizable === "SI") {
+                // Debe tener al menos uno
+                if (aterrizables <= 0) {
+                    cumpleTodosFiltros = false;
+                }
+            } else if (aterrizable === "NO") {
+                // No debe tener ni uno
+                if (aterrizables > 0) {
+                    cumpleTodosFiltros = false;
+                }
+            }
+
+            if (!cumpleTodosFiltros && cumplenFiltros) {
+                return null;
+            }
+
+            if (cumpleTodosFiltros && !cumplenFiltros) {
+                return null;
+            }
+
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
-                    <td>{sistema.distanciaOrigen}</td>
+                    <td>{sistema.distanciaOrigen} Al</td>
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
                     <td>{aterrizables}</td>
@@ -255,7 +328,7 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasColonizando() {
-        return sistOcupados.map(sistema => {
+        return sistOcupados.map((sistema) => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
@@ -274,7 +347,7 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasPoblados() {
-        return sistPoblados.map(sistema => {
+        return sistPoblados.map((sistema) => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
@@ -326,34 +399,53 @@ const SistemaIniciarColonizacion = () => {
                     <br />
                     <br />
                 </div>
+            </div>
 
-                <div className="col-sm-12 col-md-4">
-                    <label for="anillo">Debe tener algún anillo: </label>
-                    <input id="anillo" type="checkbox" value={anillo} onChange={cambiaAnillo} />
-                    &nbsp;&nbsp;
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Filtros dinámicos:</h4>
                 </div>
 
                 <div className="col-sm-12 col-md-4">
-                    <select name="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
-                        {alcancesDisponibles.map(distancia => {
-                            return (
-                                <option key={distancia.id} value={distancia.id}>
-                                    {distancia.texto}
-                                </option>
-                            );
-                        })}
+                    <label htmlFor="aterrizable">Debe tener cuerpos aterrizables: </label>
+                    <select id="aterrizable" onChange={cambiaAterrizable} value={aterrizable} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value=""></option>
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
                     </select>
-
-
-                    <label for="cinturon">Debe tener cinturón de asteroides: </label>
-                    <input id="cinturon" type="checkbox" value={cinturon} onChange={cambiaCinturon} />
                     &nbsp;&nbsp;
                 </div>
 
                 <div className="col-sm-12 col-md-4">
-                    <label>Distancia máxima: </label>
-                    <select name="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
-                        {alcancesDisponibles.map(distancia => {
+                    <label htmlFor="anillo">Debe tener algún anillo: </label>
+                    <select name="anillo" onChange={cambiaAnillo} value={anillo} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value=""></option>
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="cinturon">Debe tener cinturón de asteroides: </label>
+                    <select id="cinturon" onChange={cambiaCinturon} value={cinturon} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value=""></option>
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Búsqueda:</h4>
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="faccion">Distancia máxima: </label>
+                    <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
+                        {alcancesDisponibles.map((distancia) => {
                             return (
                                 <option key={distancia.id} value={distancia.id}>
                                     {distancia.texto}
@@ -387,7 +479,7 @@ const SistemaIniciarColonizacion = () => {
                 </div>
                 <div className="col-sm-12">
                     <h4>Sistemas probablemente libres que no cumplen los filtros:</h4>
-                    <table className={estilos.tablaSistemas}>
+                    <table className={estilos.tablaSistemas + " " + estilos.sistemasRojo}>
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -409,7 +501,7 @@ const SistemaIniciarColonizacion = () => {
             <div className="row">
                 <div className="col-sm-12">
                     <h4>Sistemas en proceso de colonizar por jugadores:</h4>
-                    <table className={estilos.tablaSistemas}>
+                    <table className={estilos.tablaSistemas + " " + estilos.sistemasVerde}>
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -424,7 +516,7 @@ const SistemaIniciarColonizacion = () => {
             <div className="row">
                 <div className="col-sm-12">
                     <h4>Sistemas poblados:</h4>
-                    <table className={estilos.tablaSistemas}>
+                    <table className={estilos.tablaSistemas + " " + estilos.sistemasAzul}>
                         <thead>
                             <tr>
                                 <th>Nombre</th>
