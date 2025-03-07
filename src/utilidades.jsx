@@ -21,8 +21,8 @@ const semverGreaterThan = (versionA, versionB) => {
 };
 
 const dameUrlBase = () => {
-    if (window.location.href.includes("ed-expansion")) {
-        return "/ed-expansion/";
+    if (window.location.href.includes("ed-colonizacion")) {
+        return "/ed-colonizacion/";
     } else {
         return "/";
     }

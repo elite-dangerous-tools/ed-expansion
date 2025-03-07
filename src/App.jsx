@@ -79,7 +79,7 @@ const App = (props) => {
                 <div className={estilos.appbar}>
                     <b className={estilos.nombreApp}>
                         <Enlace to="?buscar" decoracion={false}>
-                            Planificador de Expansiones
+                            Planificador de Expansiones/Colonizaciones
                         </Enlace>
                     </b>
 
