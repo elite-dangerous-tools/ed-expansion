@@ -1,6 +1,6 @@
 :local(.contenedorProgreso) {
     min-height: 25px;
-    padding-top: 10px;
+    padding-bottom: 10px;
     text-align: center;
     margin: auto;
     width: 100%;
