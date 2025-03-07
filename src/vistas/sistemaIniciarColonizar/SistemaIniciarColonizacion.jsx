@@ -48,12 +48,7 @@ const SistemaIniciarColonizacion = () => {
             id: "3",
             valor: 60,
             texto: "60 AL (Muy lento)",
-        },
-        {
-            id: "4",
-            valor: 100,
-            texto: "100 AL (Puede tardar varios minutos)",
-        },
+        }
     ];
 
     function distanciaSistema(sistemaOrigen, sistemaNuevo) {
@@ -196,10 +191,11 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function comprobarFinCarga() {
-        if (cargando === true && sistemasAlcance.length === sistemasColonizando.length + sistemasLibres.length + sistemasAntiguos.length) {
-            setSistLibres(sistemasLibres);
-            setSistOcupados(sistemasColonizando);
-            setSistPoblados(sistemasAntiguos);
+        setSistLibres(sistemasLibres);
+        setSistOcupados(sistemasColonizando);
+        setSistPoblados(sistemasAntiguos);
+        
+        if (cargando === true && sistemasAlcance.length === sistemasRecuperados) {
             setCargando(false);
         }
     }
