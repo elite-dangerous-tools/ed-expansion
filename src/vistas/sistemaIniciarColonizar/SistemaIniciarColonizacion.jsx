@@ -65,7 +65,7 @@ const SistemaIniciarColonizacion = () => {
         const z2 = sistemaNuevo.c.z;
 
         const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2) * 1.0);
-        return d.toFixed(3);
+        return d;
     }
 
     function recuperarSistemasAlcance() {
@@ -337,7 +337,7 @@ const SistemaIniciarColonizacion = () => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
-                    <td>{sistema.distanciaOrigen} Al</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
                     <td>{aterrizables}</td>
@@ -393,7 +393,7 @@ const SistemaIniciarColonizacion = () => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
-                    <td>{sistema.distanciaOrigen} Al</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -415,7 +415,7 @@ const SistemaIniciarColonizacion = () => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
-                    <td>{sistema.distanciaOrigen} Al</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -553,7 +553,7 @@ const SistemaIniciarColonizacion = () => {
 
             <div className="row">
                 <div className="col-sm-12">
-                    <h4>Sistemas probablemente libres que cumplen los filtros:</h4>
+                    <h4>Sistemas probablemente libres:</h4>
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
@@ -569,25 +569,7 @@ const SistemaIniciarColonizacion = () => {
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasLibresFiltrados()}</tbody>
-                    </table>
-                </div>
-                <div className="col-sm-12">
-                    <h4>Sistemas probablemente libres que no cumplen los filtros:</h4>
-                    <table className={estilos.tablaSistemas + " " + estilos.sistemasRojo}>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Distancia Origen</th>
-                                <th>Estrellas</th>
-                                <th>Planetas y Satélites</th>
-                                <th>Cuerpos aterrizables</th>
-                                <th>Cinturon de asteroides</th>
-                                <th>Anillos</th>
-                                <th>Cuerpo más lejano</th>
-                                <th>Enlaces</th>
-                            </tr>
-                        </thead>
-                        <tbody>{cargando ? null : pintarSistemasLibresExcluidos()}</tbody>
+                        <tbody className={estilos.sistemasRojo}>{cargando ? null : pintarSistemasLibresExcluidos()}</tbody>
                     </table>
                 </div>
             </div>
