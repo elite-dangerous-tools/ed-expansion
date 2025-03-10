@@ -27,5 +27,5 @@ package-lock.json
 yarn.lock
 *-lock.*
 
-systems2000.json
-systemsWithCoordinates.json
+filtrar_sistemas/*.json
+filtrar_sistemas/*.zip

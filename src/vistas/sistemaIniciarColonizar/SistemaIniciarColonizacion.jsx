@@ -21,7 +21,7 @@ const SistemaIniciarColonizacion = () => {
     const [sentido, setSentido] = useState("ASC");
 
     const [aterrizable, setAterrizable] = useState(false);
-    const [sistemas550, setSistemas550] = useState([]);
+    const [sistemasBurbuja, setSistemasBurbuja] = useState([]);
     const [sistemasAlcance, setSistemasAlcance] = useState([]);
 
     const [sistLibres, setSistLibres] = useState([]);
@@ -76,10 +76,10 @@ const SistemaIniciarColonizacion = () => {
             return;
         }
 
-        let sistemaOrigen = sistemas550.find((fila) => fila.n.toLocaleLowerCase() === nombreSistema.toLocaleLowerCase());
+        let sistemaOrigen = sistemasBurbuja.find((fila) => fila.n.toLocaleLowerCase() === nombreSistema.toLocaleLowerCase());
 
         let sistemasValidos = [];
-        sistemas550.forEach((sistema) => {
+        sistemasBurbuja.forEach((sistema) => {
             let anyosLuz = distanciaSistema(sistemaOrigen, sistema);
 
             if (anyosLuz <= radio) {
@@ -116,7 +116,8 @@ const SistemaIniciarColonizacion = () => {
     }
 
     async function recuperarListaSistemas() {
-        let response = await fetch(dameUrlBase() + "sistemas550.zip", {
+        const nombreFichero = "sistemas550";
+        let response = await fetch(dameUrlBase() + nombreFichero + ".zip", {
             method: "GET",
             // mode: "no-cors",
             // cache: "no-cache"
@@ -127,10 +128,10 @@ const SistemaIniciarColonizacion = () => {
             const zipData = await response.arrayBuffer();
             const contents = await zip.loadAsync(zipData);
             
-            const fileData = await contents.files["sistemas550.json"].async("json");
+            const fileData = await contents.files[nombreFichero + ".json"].async("text");
             const sistemasBBDD = JSON.parse(fileData);
 
-            setSistemas550(sistemasBBDD);
+            setSistemasBurbuja(sistemasBBDD);
             setCargando(false);
         } else {
             alert("Fallo al recuperar los sistemas de la burbuja");

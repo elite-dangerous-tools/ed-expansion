@@ -14,9 +14,10 @@ def filtrar_sistemas(limite=100):
     
     # Guardar el resultado en un nuevo archivo
     with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(filtrados, f)
+        json.dump(filtrados, f, separators=(',', ':'))
 
     print("Terminado fichero de límite {}.".format(limite))
 
 
-filtrar_sistemas(550)
+filtrar_sistemas(600)
+filtrar_sistemas(1000)
