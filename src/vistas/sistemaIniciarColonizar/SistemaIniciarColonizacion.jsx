@@ -15,6 +15,10 @@ const SistemaIniciarColonizacion = () => {
     const [alcance, setAlcance] = useState("0");
     const [anillo, setAnillo] = useState(false);
     const [cinturon, setCinturon] = useState(false);
+
+    const [orden, setOrden] = useState("distanciaOrigen");
+    const [sentido, setSentido] = useState("ASC");
+
     const [aterrizable, setAterrizable] = useState(false);
     const [sistemas550, setSistemas550] = useState([]);
     const [sistemasAlcance, setSistemasAlcance] = useState([]);
@@ -48,7 +52,7 @@ const SistemaIniciarColonizacion = () => {
             id: "3",
             valor: 60,
             texto: "60 AL (Muy lento)",
-        }
+        },
     ];
 
     function distanciaSistema(sistemaOrigen, sistemaNuevo) {
@@ -128,10 +132,15 @@ const SistemaIniciarColonizacion = () => {
     }
 
     async function recuperarInfoSistema(nombre, distanciaOrigen, modoLento) {
-        if (modoLento) {
-            await funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
-        } else {
-            funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+        try {
+            if (modoLento) {
+                await funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+            } else {
+                funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+            }
+        } catch (error) {
+            sistemasRecuperados++;
+            comprobarFinCarga();
         }
     }
 
@@ -194,7 +203,7 @@ const SistemaIniciarColonizacion = () => {
         setSistLibres(sistemasLibres);
         setSistOcupados(sistemasColonizando);
         setSistPoblados(sistemasAntiguos);
-        
+
         if (cargando === true && sistemasAlcance.length === sistemasRecuperados) {
             setCargando(false);
         }
@@ -217,6 +226,14 @@ const SistemaIniciarColonizacion = () => {
         setAnillo(evento.target.value);
     }
 
+    function cambiaOrden(evento) {
+        setOrden(evento.target.value);
+    }
+
+    function cambiaSentido(evento) {
+        setSentido(evento.target.value);
+    }
+
     function cambiaCinturon(evento) {
         setCinturon(evento.target.value);
     }
@@ -234,7 +251,9 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasLibres(cumplenFiltros = undefined) {
-        return sistLibres.map((sistema) => {
+        let sistemasOrdenados = ordenarSistemas(sistLibres);
+
+        return sistemasOrdenados.map((sistema) => {
             let estrellas = 0;
             let planetasLunas = 0;
             let cinturones = 0;
@@ -339,11 +358,42 @@ const SistemaIniciarColonizacion = () => {
         });
     }
 
+    function compare(a, b) {
+        let valor1 = sentido === "ASC" ? a[orden] : b[orden];
+        let valor2 = sentido === "ASC" ? b[orden] : a[orden];
+
+        if (isNaN(valor1) || isNaN(valor2)) {
+            // Si alguno no es númerico, ordenamos como texto
+            valor1 = valor1.toLowerCase();
+            valor2 = valor2.toLowerCase();
+        } else {
+            // Es numérico
+            valor1 = parseFloat(valor1);
+            valor2 = parseFloat(valor2);
+        }
+
+        if (valor1 < valor2) {
+            return -1;
+        }
+        if (valor1 > valor2) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    function ordenarSistemas(sistemas) {
+        return sistemas.sort(compare);
+    }
+
     function pintarSistemasColonizando() {
-        return sistOcupados.map((sistema) => {
+        let sistemasOrdenados = ordenarSistemas(sistOcupados);
+
+        return sistemasOrdenados.map((sistema) => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
+                    <td>{sistema.distanciaOrigen} Al</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -359,10 +409,13 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasPoblados() {
-        return sistPoblados.map((sistema) => {
+        let sistemasOrdenados = ordenarSistemas(sistPoblados);
+
+        return sistemasOrdenados.map((sistema) => {
             return (
                 <tr key={sistema.id}>
                     <td>{sistema.name}</td>
+                    <td>{sistema.distanciaOrigen} Al</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -476,6 +529,30 @@ const SistemaIniciarColonizacion = () => {
 
             <div className="row">
                 <div className="col-sm-12">
+                    <h4>Orden:</h4>
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="columna">Columna: </label>
+                    <select id="columna" onChange={cambiaOrden} value={orden} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value="name">Nombre</option>
+                        <option value="distanciaOrigen">Distancia Origen</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="columna">Sentido: </label>
+                    <select id="columna" onChange={cambiaSentido} value={sentido} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value="ASC">Ascendente</option>
+                        <option value="DESC">Descendente</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
                     <h4>Sistemas probablemente libres que cumplen los filtros:</h4>
                     <table className={estilos.tablaSistemas}>
                         <thead>
@@ -522,6 +599,7 @@ const SistemaIniciarColonizacion = () => {
                         <thead>
                             <tr>
                                 <th>Nombre</th>
+                                <th>Distancia Origen</th>
                                 <th>Enlaces</th>
                             </tr>
                         </thead>
@@ -537,6 +615,7 @@ const SistemaIniciarColonizacion = () => {
                         <thead>
                             <tr>
                                 <th>Nombre</th>
+                                <th>Distancia Origen</th>
                                 <th>Enlaces</th>
                             </tr>
                         </thead>
