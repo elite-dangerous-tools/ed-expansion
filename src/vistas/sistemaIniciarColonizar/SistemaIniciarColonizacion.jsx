@@ -4,6 +4,7 @@ import estilos from "./SistemaIniciarColonizacion.module.css";
 
 import { dameBusqueda, dameUrlBase } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
+import JSZip from "jszip";
 
 const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
@@ -115,14 +116,20 @@ const SistemaIniciarColonizacion = () => {
     }
 
     async function recuperarListaSistemas() {
-        let response = await fetch(dameUrlBase() + "sistemas550.json", {
+        let response = await fetch(dameUrlBase() + "sistemas550.zip", {
             method: "GET",
             // mode: "no-cors",
             // cache: "no-cache"
         });
 
         if (response.status >= 200 && response.status < 300) {
-            const sistemasBBDD = await response.json();
+            const zip = new JSZip();
+            const zipData = await response.arrayBuffer();
+            const contents = await zip.loadAsync(zipData);
+            
+            const fileData = await contents.files["sistemas550.json"].async("json");
+            const sistemasBBDD = JSON.parse(fileData);
+
             setSistemas550(sistemasBBDD);
             setCargando(false);
         } else {
