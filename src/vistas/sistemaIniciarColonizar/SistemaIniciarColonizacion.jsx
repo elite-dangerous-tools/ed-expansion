@@ -4,7 +4,7 @@ import estilos from "./SistemaIniciarColonizacion.module.css";
 
 import { dameBusqueda, dameUrlBase } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
-import JSZip from "jszip";
+import { unzipSync, strFromU8 } from "fflate";
 
 const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
@@ -116,7 +116,7 @@ const SistemaIniciarColonizacion = () => {
     }
 
     async function recuperarListaSistemas() {
-        const nombreFichero = "sistemas550";
+        const nombreFichero = "sistemas600";
         let response = await fetch(dameUrlBase() + nombreFichero + ".zip", {
             method: "GET",
             // mode: "no-cors",
@@ -124,13 +124,12 @@ const SistemaIniciarColonizacion = () => {
         });
 
         if (response.status >= 200 && response.status < 300) {
-            const zip = new JSZip();
-            const zipData = await response.arrayBuffer();
-            const contents = await zip.loadAsync(zipData);
-            
-            const fileData = await contents.files[nombreFichero + ".json"].async("text");
-            const sistemasBBDD = JSON.parse(fileData);
+            const zipData = new Uint8Array(await response.arrayBuffer()); // Convertir a Uint8Array
+            const archivos = unzipSync(zipData); // Descomprimir ZIP
 
+            const nombreArchivo = Object.keys(archivos)[0]; // Tomar el único archivo
+            const jsonText = strFromU8(archivos[nombreArchivo]); // Convertir a texto
+            const sistemasBBDD = JSON.parse(jsonText); // Parsear JSON
             setSistemasBurbuja(sistemasBBDD);
             setCargando(false);
         } else {
@@ -442,7 +441,11 @@ const SistemaIniciarColonizacion = () => {
         // Constructor
         isMounted.current = true;
 
-        recuperarListaSistemas();
+        try {
+            recuperarListaSistemas();
+        } catch (error) {
+            console.log(error);
+        }
     }, []);
 
     useEffect(() => {
