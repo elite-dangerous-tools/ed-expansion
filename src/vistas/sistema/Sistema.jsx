@@ -5,12 +5,16 @@ import estilos from "./Sistema.module.css";
 import { dameBusqueda } from "../../utilidades";
 import Enlace from "../../elementos/Enlace";
 import Progreso from "../../elementos/Progreso";
+import Boton from "../../elementos/Boton";
 
 const Sistema = () => {
     const isMounted = useRef(false);
     const nombreSistema = useRef(dameBusqueda()).current;
 
+    const [tabVisible, setTabVisible] = useState(1);
+
     const [sistema, setSistema] = useState({});
+    const [estaciones, setEstaciones] = useState({});
     const [trafico, setTrafico] = useState({});
     const [muertes, setMuertes] = useState({});
     const [facciones, setFacciones] = useState({});
@@ -37,6 +41,17 @@ const Sistema = () => {
         if (response.status >= 200 && response.status < 300) {
             const datos = await response.json();
             setTrafico(datos);
+        }
+    }
+
+    async function recuperarEstacionesSistema() {
+        let response = await fetch("https://www.edsm.net/api-system-v1/stations?systemName=" + nombreSistema, {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const datos = await response.json();
+            setEstaciones(datos);
         }
     }
 
@@ -83,6 +98,38 @@ const Sistema = () => {
         return listaNaves;
     }
 
+    function pintarEstaciones() {
+        let listaEstaciones = [];
+
+        if (estaciones && estaciones.stations) {
+            estaciones.stations.forEach((estacion) => {
+
+                if (estacion.type === "Fleet Carrier") {
+                    return;
+                }
+
+                listaEstaciones.push(
+                    <tr key={estacion.id} >
+                        <td>
+                            {estacion.name}
+                        </td>
+                        <td>
+                            {estacion.type}
+                        </td>
+                        <td>
+                            {estacion.economy}
+                        </td>
+                        <td>
+                            {estacion.secondEconomy}
+                        </td>
+                    </tr>
+                );
+            });
+        }
+
+        return listaEstaciones;
+    }
+
     function pintarFacciones() {
         if (!facciones || !facciones.factions || facciones.factions.length === 0) {
             return;
@@ -120,11 +167,24 @@ const Sistema = () => {
         }
     }
 
+    function verBgs() {
+        setTabVisible(1);
+    }
+
+    function verEstaciones() {
+        setTabVisible(2);
+    }
+
+    function verPuntos() {
+        setTabVisible(3);
+    }
+
     useEffect(() => {
         // Constructor
         isMounted.current = true;
 
         recuperarSistema();
+        recuperarEstacionesSistema();
         recuperarTraficoSistema();
         recuperarMuertesSistema();
         recuperarFaccionesSistema();
@@ -215,87 +275,152 @@ const Sistema = () => {
                 </div>
             </div>
 
-            <div className={"row " + estilos.columnasAltas}>
-                <div className="col-sm-12 col-md-4">
-                    <fieldset>
-                        <h3 className={estilos.titulo}>trafico</h3>
-                        <Progreso visible={!trafico.id > 0} />
-                        <div className="row">
-                            <div className={claseColumna}>
-                                <b>Total: </b>
-                                {trafico.traffic ? trafico.traffic.total : undefined}
-                            </div>
-                            <div className={claseColumna}>
-                                <b>Semana: </b>
-                                {trafico.traffic ? trafico.traffic.week : undefined}
-                            </div>
-                            <div className={claseColumna}>
-                                <b>Día: </b>
-                                {trafico.traffic ? trafico.traffic.day : undefined}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-
-                <div className="col-sm-12 col-md-4">
-                    <fieldset>
-                        <h3 className={estilos.titulo}>naves (últimas 24H)</h3>
-                        <Progreso visible={!trafico.id > 0} />
-                        <div className="row">{pintarNaves()}</div>
-                    </fieldset>
-                </div>
-
-                <div className="col-sm-12 col-md-4">
-                    <fieldset>
-                        <h3 className={estilos.titulo}>muertes</h3>
-                        <Progreso visible={!muertes.id > 0} />
-                        <div className="row">
-                            <div className={claseColumna}>
-                                <b>Total: </b>
-                                {muertes.deaths ? muertes.deaths.total : undefined}
-                            </div>
-                            <div className={claseColumna}>
-                                <b>Semana: </b>
-                                {muertes.deaths ? muertes.deaths.week : undefined}
-                            </div>
-                            <div className={claseColumna}>
-                                <b>Día: </b>
-                                {muertes.deaths ? muertes.deaths.day : undefined}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
-
             <div className="row">
                 <div className="col-sm-12">
-                    <br />
-                    <br />
+                    <div className={estilos.tab}>
+                        <Boton desactivado={tabVisible === 1} fnClick={verBgs}>
+                            Ver BGS
+                        </Boton>
+                        <Boton desactivado={tabVisible === 2} fnClick={verEstaciones}>
+                            Ver Estaciones
+                        </Boton>
+                        {/* <Boton desactivado={tabVisible === 3} fnClick={verPuntos}>
+                            Ver Puntos del sistema
+                        </Boton> */}
+                    </div>
                 </div>
             </div>
 
-            <div className="row">
-                <div className="col-sm-12">
-                    <fieldset>
-                        <h3 className={estilos.titulo}>facciones del sistema</h3>
-                        <Progreso visible={!facciones.id > 0} />
-                        <table className={estilos.tablaFacciones}>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Alianza</th>
-                                    <th>Gobierno</th>
-                                    <th>Influencia</th>
-                                    <th>Estado</th>
-                                    {/* <th>Felicidad</th> */}
-                                    {/* <th>De jugador</th> */}
-                                </tr>
-                            </thead>
-                            <tbody>{pintarFacciones()}</tbody>
-                        </table>
-                    </fieldset>
-                </div>
-            </div>
+            {tabVisible === 1 ? (
+                <>
+                    <div className={"row " + estilos.columnasAltas}>
+                        <div className="col-sm-12 col-md-4">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>trafico</h3>
+                                <Progreso visible={!trafico.id > 0} />
+                                <div className="row">
+                                    <div className={claseColumna}>
+                                        <b>Total: </b>
+                                        {trafico.traffic ? trafico.traffic.total : undefined}
+                                    </div>
+                                    <div className={claseColumna}>
+                                        <b>Semana: </b>
+                                        {trafico.traffic ? trafico.traffic.week : undefined}
+                                    </div>
+                                    <div className={claseColumna}>
+                                        <b>Día: </b>
+                                        {trafico.traffic ? trafico.traffic.day : undefined}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div className="col-sm-12 col-md-4">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>naves (últimas 24H)</h3>
+                                <Progreso visible={!trafico.id > 0} />
+                                <div className="row">{pintarNaves()}</div>
+                            </fieldset>
+                        </div>
+
+                        <div className="col-sm-12 col-md-4">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>muertes</h3>
+                                <Progreso visible={!muertes.id > 0} />
+                                <div className="row">
+                                    <div className={claseColumna}>
+                                        <b>Total: </b>
+                                        {muertes.deaths ? muertes.deaths.total : undefined}
+                                    </div>
+                                    <div className={claseColumna}>
+                                        <b>Semana: </b>
+                                        {muertes.deaths ? muertes.deaths.week : undefined}
+                                    </div>
+                                    <div className={claseColumna}>
+                                        <b>Día: </b>
+                                        {muertes.deaths ? muertes.deaths.day : undefined}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <br />
+                            <br />
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>facciones del sistema</h3>
+                                <Progreso visible={!facciones.id > 0} />
+                                <table className={estilos.tablaFacciones}>
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Alianza</th>
+                                            <th>Gobierno</th>
+                                            <th>Influencia</th>
+                                            <th>Estado</th>
+                                            {/* <th>Felicidad</th> */}
+                                            {/* <th>De jugador</th> */}
+                                        </tr>
+                                    </thead>
+                                    <tbody>{pintarFacciones()}</tbody>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </>
+            ) : null}
+
+            {tabVisible === 2 ? (
+                <>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>estaciones del sistema</h3>
+                                <Progreso visible={!facciones.id > 0} />
+                                <table className={estilos.tablaFacciones}>
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo</th>
+                                            <th>Economía</th>
+                                            <th>Segunda economía</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>{pintarEstaciones()}</tbody>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </>
+            ) : null}
+
+            {tabVisible === 3 ? (
+                <>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>puntos del sistema</h3>
+                                <Progreso visible={!facciones.id > 0} />
+                                <table className={estilos.tablaFacciones}>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    {/* <tbody>{pintarPuntos()}</tbody> */}
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </>
+            ) : null}
         </>
     );
 };

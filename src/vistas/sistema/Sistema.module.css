@@ -13,6 +13,10 @@
     width: 100%;
 }
 
+:local(.tab) {
+    text-align: center;
+}
+
 :local(.tablaFacciones) {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
