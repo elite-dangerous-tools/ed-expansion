@@ -115,7 +115,6 @@ const BuscarProducto = () => {
                 <tr key={fila.id}>
                     <td>{fila.name}</td>
                     <td>{fila.distance}</td>
-                    <td>{fila.systemid64}</td>
                     <td>{fila.type}</td>
                     <td>{fila.id_producto}</td>
                     <td>{fila.id_estacion}</td>
@@ -182,14 +181,13 @@ const BuscarProducto = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
-                                <th>name</th>
-                                <th>distance</th>
-                                <th>systemid64</th>
-                                <th>type</th>
+                                <th>Nombre</th>
+                                <th>Distancia</th>
+                                <th>Tipo</th>
                                 <th>id_producto</th>
                                 <th>id_estacion</th>
-                                <th>stock</th>
-                                <th>sellprice</th>
+                                <th>Suministro</th>
+                                <th>Precio</th>
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : mostrarEstacionesProducto()}</tbody>
