@@ -84,6 +84,7 @@ const Busqueda = (props) => {
                             <tr>
                                 <th>Sistema</th>
                                 <th>Planificar colonizaciones</th>
+                                <th>Buscar productos</th>
                                 <th>Lealtad</th>
                                 <th>Facción Dominante</th>
                                 {/* <th>Estado Facción</th> */}
@@ -112,6 +113,11 @@ const Busqueda = (props) => {
                                         <td>
                                             <b>
                                                 <Enlace to={"?sistemaIniciarColonizacion=" + sistema.name}>Ver alrededores de {sistema.name}</Enlace>
+                                            </b>
+                                        </td>
+                                        <td>
+                                            <b>
+                                                <Enlace to={"?buscarProducto=" + sistema.name}>Ver estaciones con productos a la venta cerca de {sistema.name}</Enlace>
                                             </b>
                                         </td>
                                         <td>{info.allegiance}</td>
