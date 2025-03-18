@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./SistemaIniciarColonizacion.module.css";
 
-import { dameBusqueda, dameUrlBase } from "../../utilidades";
+import { dameBusqueda } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
-import { unzipSync, strFromU8 } from "fflate";
 
 const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
@@ -12,7 +11,7 @@ const SistemaIniciarColonizacion = () => {
 
     const [sistemasRecuperadosLoading, setSistemasRecuperadosLoading] = useState(0);
 
-    const [cargando, setCargando] = useState(true);
+    const [cargando, setCargando] = useState(false);
     const [alcance, setAlcance] = useState("0");
     const [anillo, setAnillo] = useState(false);
     const [cinturon, setCinturon] = useState(false);
@@ -21,7 +20,6 @@ const SistemaIniciarColonizacion = () => {
     const [sentido, setSentido] = useState("ASC");
 
     const [aterrizable, setAterrizable] = useState(false);
-    const [sistemasBurbuja, setSistemasBurbuja] = useState([]);
     const [sistemasAlcance, setSistemasAlcance] = useState([]);
 
     const [sistLibres, setSistLibres] = useState([]);
@@ -69,28 +67,31 @@ const SistemaIniciarColonizacion = () => {
         return d;
     }
 
-    function recuperarSistemasAlcance() {
+    async function recuperarSistemasAlcance() {
         sistemasRecuperados = 0;
         let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
         if (radio <= 0) {
             return;
         }
 
-        let sistemaOrigen = sistemasBurbuja.find((fila) => fila.n.toLocaleLowerCase() === nombreSistema.toLocaleLowerCase());
+        let dominio = "https://stormseekers.twilightparadox.com";
+        // if (window.location.hostname === 'localhost') {
+        //     dominio = "http://localhost:5000";
+        // }
 
-        let sistemasValidos = [];
-        sistemasBurbuja.forEach((sistema) => {
-            let anyosLuz = distanciaSistema(sistemaOrigen, sistema);
-
-            if (anyosLuz <= radio) {
-                sistemasValidos.push({
-                    name: sistema.n,
-                    distance: anyosLuz,
-                });
-            }
+        let urlAlcance = dominio + "/api/sistemas_alcance?distancia=" + radio + "&sistema=" + nombreSistema;
+        let response = await fetch(encodeURI(urlAlcance), {
+            method: "GET",
         });
 
-        setSistemasAlcance(sistemasValidos);
+        if (response.status >= 200 && response.status < 300) {
+            const sistemasBBDD = await response.json();
+            setSistemasAlcance(sistemasBBDD);
+        } else {
+            alert("Fallo al recuperar los sistemas de la burbuja: " + response.statusText);
+            setCargando(false);
+        }
+
     }
 
     async function recuperarInfoSistemas() {
@@ -106,35 +107,12 @@ const SistemaIniciarColonizacion = () => {
 
             if (modoLento || indice % 10 === 0) {
                 // En modo lento o cada 10 esperamos
-                await recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
+                await recuperarInfoSistema(sistema.nombre, sistema.distancia, modoLento);
             } else {
-                recuperarInfoSistema(sistema.name, sistema.distance, modoLento);
+                recuperarInfoSistema(sistema.nombre, sistema.distancia, modoLento);
             }
 
             indice++;
-        }
-    }
-
-    async function recuperarListaSistemas() {
-        const nombreFichero = "sistemas600";
-        let response = await fetch(dameUrlBase() + nombreFichero + ".zip", {
-            method: "GET",
-            // mode: "no-cors",
-            // cache: "no-cache"
-        });
-
-        if (response.status >= 200 && response.status < 300) {
-            const zipData = new Uint8Array(await response.arrayBuffer()); // Convertir a Uint8Array
-            const archivos = unzipSync(zipData); // Descomprimir ZIP
-
-            const nombreArchivo = Object.keys(archivos)[0]; // Tomar el único archivo
-            const jsonText = strFromU8(archivos[nombreArchivo]); // Convertir a texto
-            const sistemasBBDD = JSON.parse(jsonText); // Parsear JSON
-            setSistemasBurbuja(sistemasBBDD);
-            setCargando(false);
-        } else {
-            alert("Fallo al recuperar los sistemas de la burbuja");
-            setCargando(false);
         }
     }
 
@@ -442,7 +420,7 @@ const SistemaIniciarColonizacion = () => {
         isMounted.current = true;
 
         try {
-            recuperarListaSistemas();
+            // recuperarListaSistemas();
         } catch (error) {
             console.log(error);
         }
