@@ -54,19 +54,6 @@ const SistemaIniciarColonizacion = () => {
         },
     ];
 
-    function distanciaSistema(sistemaOrigen, sistemaNuevo) {
-        const x1 = sistemaOrigen.c.x;
-        const y1 = sistemaOrigen.c.y;
-        const z1 = sistemaOrigen.c.z;
-
-        const x2 = sistemaNuevo.c.x;
-        const y2 = sistemaNuevo.c.y;
-        const z2 = sistemaNuevo.c.z;
-
-        const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2) * 1.0);
-        return d;
-    }
-
     async function recuperarSistemasAlcance() {
         sistemasRecuperados = 0;
         let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
