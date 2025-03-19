@@ -47,11 +47,21 @@ const dameBusquedaMultiple = () => {
             .replace("?", "")
             .split("&");
 
-        return busquedaCompleta.map((element) => {
-            return element.split("=");
+        let resultado = {};
+        busquedaCompleta.forEach((element) => {
+            let [key, value] = element.split("=");
+            if (resultado[key]) {
+                // Si la clave ya existe, añade el valor al array
+                resultado[key] = [].concat(resultado[key], value);
+            } else {
+                // Si la clave no existe, crea un nuevo array con el valor
+                resultado[key] = value;
+            }
         });
+
+        return resultado;
     } catch (error) {
-        return [];
+        return {};
     }
 };
 

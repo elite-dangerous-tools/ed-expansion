@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./BuscarProducto.module.css";
 
-import { dameBusqueda } from "../../utilidades";
+import { dameBusqueda, dameBusquedaMultiple } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
 let dominio = "https://stormseekers.twilightparadox.com";
@@ -12,32 +12,35 @@ let dominio = "https://stormseekers.twilightparadox.com";
 
 const BuscarProducto = () => {
     const isMounted = useRef(false);
-    const nombreSistema = useRef(dameBusqueda()).current;
+
+    const parametrosUrl = dameBusquedaMultiple();
+    const nombreSistema = useRef(parametrosUrl.buscarProducto).current;
 
     const [cargando, setCargando] = useState(true);
-    const [alcance, setAlcance] = useState("0");
-    const [productos, setProductos] = useState([]);
+    const [alcance, setAlcance] = useState(parametrosUrl.alcance || "15");
+    const [listaProductos, setListaProductos] = useState([]);
     const [producto, setProducto] = useState("0");
+    const [idioma, setIdioma] = useState("es");
     const [estacionesProducto, setEstacionesProducto] = useState([]);
 
     const alcancesDisponibles = [
         {
-            id: "0",
-            valor: 0,
-            texto: "",
+            id: "15",
+            valor: 15,
+            texto: "15 AL",
         },
         {
-            id: "2",
+            id: "30",
             valor: 30,
             texto: "30 AL",
         },
         {
-            id: "3",
+            id: "60",
             valor: 60,
             texto: "60 AL (Más lento)",
         },
         {
-            id: "4",
+            id: "100",
             valor: 100,
             texto: "100 AL (Muy lento)",
         },
@@ -77,7 +80,7 @@ const BuscarProducto = () => {
 
         if (response.status >= 200 && response.status < 300) {
             const todosProductos = await response.json();
-            setProductos(todosProductos);
+            setListaProductos(todosProductos);
         } else {
             alert("Fallo al recuperar los productos: " + response.statusText);
         }
@@ -109,15 +112,83 @@ const BuscarProducto = () => {
         }
     }
 
+    function compararProductos(a, b) {
+        // let valor1 = sentido === "ASC" ? a[orden] : b[orden];
+        // let valor2 = sentido === "ASC" ? b[orden] : a[orden];
+
+        // if (isNaN(valor1) || isNaN(valor2)) {
+        //     // Si alguno no es númerico, ordenamos como texto
+        //     valor1 = valor1.toLowerCase();
+        //     valor2 = valor2.toLowerCase();
+        // } else {
+        //     // Es numérico
+        //     valor1 = parseFloat(valor1);
+        //     valor2 = parseFloat(valor2);
+        // }
+
+        // Por ahora ordenamos en castellano
+        let valor1 = "";
+        let valor2 = "";
+
+        if (idioma == "es") {
+            valor1 = a.nombre.toLowerCase();
+            valor2 = b.nombre.toLowerCase();
+        } else if (idioma == "en") {
+            valor1 = a.name.toLowerCase();
+            valor2 = b.name.toLowerCase();
+        } else {
+            valor1 = a.id.toLowerCase();
+            valor2 = b.id.toLowerCase();
+        }
+
+        if (valor1 < valor2) {
+            return -1;
+        }
+        if (valor1 > valor2) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    function mostrarProducto(articulo) {
+        if (idioma === "es") {
+            return (
+                <option key={articulo.id} value={articulo.id}>
+                    {articulo.nombre} ({articulo.name})
+                </option>
+            );
+        } else if (idioma === "en") {
+            return (
+                <option key={articulo.id} value={articulo.id}>
+                    {articulo.name} ({articulo.nombre})
+                </option>
+            );
+        } else {
+            return (
+                <option key={articulo.id} value={articulo.id}>
+                    {articulo.id}
+                </option>
+            );
+        }
+    }
+
+    function mostrarProductos() {
+        let productosOrdenados = listaProductos.sort(compararProductos);
+        return productosOrdenados.map(mostrarProducto);
+    }
+
     function mostrarEstacionesProducto() {
+        // let estacionesConProductosOrdenadas = estacionesProducto.sort(compararEstaciones);
+
         return estacionesProducto.map((fila) => {
             return (
                 <tr key={fila.id}>
                     <td>{fila.name}</td>
                     <td>{fila.distance}</td>
                     <td>{fila.type}</td>
-                    <td>{fila.id_producto}</td>
-                    <td>{fila.id_estacion}</td>
+                    {/* <td>{fila.id_producto}</td>
+                    <td>{fila.id_estacion}</td> */}
                     <td>{fila.stock}</td>
                     <td>{fila.sellprice}</td>
                 </tr>
@@ -163,13 +234,7 @@ const BuscarProducto = () => {
                     <label htmlFor="faccion">Productos: </label>
                     <select id="faccion" onChange={cambiaProducto} value={producto} disabled={cargando} className={estilos.selectProducto}>
                         <option value="0"></option>
-                        {productos.map((articulo) => {
-                            return (
-                                <option key={articulo.id} value={articulo.id}>
-                                    {articulo.nombre} ({articulo.name})
-                                </option>
-                            );
-                        })}
+                        {mostrarProductos()}
                     </select>
                     &nbsp;&nbsp;
                 </div>
@@ -184,8 +249,8 @@ const BuscarProducto = () => {
                                 <th>Nombre</th>
                                 <th>Distancia</th>
                                 <th>Tipo</th>
-                                <th>id_producto</th>
-                                <th>id_estacion</th>
+                                {/* <th>id_producto</th> */}
+                                {/* <th>id_estacion</th> */}
                                 <th>Suministro</th>
                                 <th>Precio</th>
                             </tr>
