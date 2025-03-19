@@ -72,13 +72,12 @@ const BuscarProducto = () => {
         setProducto(nuevoProducto);
     }
 
-    guardarParametros = () => {
+    function guardarParametros() {
         const params = new URLSearchParams(window.location.search);
 
-        // Añadir nuevos parámetros
-        params.set('parametro1', 'nuevoValor1');
-        params.set('parametro2', 'nuevoValor2');
-        params.set('parametro3', 'nuevoValor3');
+        params.set('alcance', alcance);
+        params.set('producto', producto);
+        params.set('idioma', idioma);
 
         // Actualizar la URL sin recargar la página
         const nuevaURL = `${window.location.pathname}?${params.toString()}`;
