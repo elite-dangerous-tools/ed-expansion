@@ -185,25 +185,21 @@ const BuscarProducto = () => {
     }
 
     function mostrarProducto(articulo) {
+        let descrip = articulo.id;
+
         if (idioma === "es") {
-            return (
-                <option key={articulo.id} value={articulo.id}>
-                    {articulo.nombre} ({articulo.name})
-                </option>
-            );
+            descrip = articulo.nombre;
         } else if (idioma === "en") {
-            return (
-                <option key={articulo.id} value={articulo.id}>
-                    {articulo.name} ({articulo.nombre})
-                </option>
-            );
-        } else {
-            return (
-                <option key={articulo.id} value={articulo.id}>
-                    {articulo.id}
-                </option>
-            );
+            descrip = articulo.name;
         }
+
+        descrip += ` (Max: ${articulo.max_stock} - Avg: ${articulo.avg_stock})`;
+
+        return (
+            <option key={articulo.id} value={articulo.id}>
+                {descrip}
+            </option>
+        );
     }
 
     function mostrarProductos() {
