@@ -19,9 +19,20 @@ const BuscarProducto = () => {
     const [cargando, setCargando] = useState(true);
     const [alcance, setAlcance] = useState(parametrosUrl.alcance || "15");
     const [listaProductos, setListaProductos] = useState([]);
-    const [producto, setProducto] = useState("0");
-    const [idioma, setIdioma] = useState("es");
+    const [producto, setProducto] = useState(parametrosUrl.producto || "0");
+    const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
     const [estacionesProducto, setEstacionesProducto] = useState([]);
+
+    const idiomasDisponibles = [
+        {
+            id: "es",
+            texto: "Español",
+        },
+        {
+            id: "en",
+            texto: "English",
+        },
+    ];
 
     const alcancesDisponibles = [
         {
@@ -62,9 +73,19 @@ const BuscarProducto = () => {
         recuperarProductosEstaciones();
     }, [alcance, producto]);
 
+    useEffect(() => {
+        // hemos cambiado el alcance o el producto o el idioma
+        guardarParametros();
+    }, [alcance, producto, idioma]);
+
     function cambiaAlcance(evento) {
         const nuevoAlcance = evento.target.value;
         setAlcance(nuevoAlcance);
+    }
+
+    function cambiaIdioma(evento) {
+        const nuevoIdioma = evento.target.value;
+        setIdioma(nuevoIdioma);
     }
 
     function cambiaProducto(evento) {
@@ -75,14 +96,14 @@ const BuscarProducto = () => {
     function guardarParametros() {
         const params = new URLSearchParams(window.location.search);
 
-        params.set('alcance', alcance);
-        params.set('producto', producto);
-        params.set('idioma', idioma);
+        params.set("alcance", alcance);
+        params.set("producto", producto);
+        params.set("idioma", idioma);
 
         // Actualizar la URL sin recargar la página
         const nuevaURL = `${window.location.pathname}?${params.toString()}`;
-        window.history.pushState({}, '', nuevaURL);
-    };
+        window.history.pushState({}, "", nuevaURL);
+    }
 
     async function recuperarListaProductos() {
         let urlProductos = dominio + "/api/productos";
@@ -194,15 +215,27 @@ const BuscarProducto = () => {
         // let estacionesConProductosOrdenadas = estacionesProducto.sort(compararEstaciones);
 
         return estacionesProducto.map((fila) => {
+            const productoFila = listaProductos.find((prod) => prod.id === fila.producto);
+
+            let nombreProducto = fila.producto;
+            if (productoFila) {
+                if (idioma === "es") {
+                    nombreProducto = productoFila.nombre;
+                } else if (idioma === "en") {
+                    nombreProducto = productoFila.name;
+                }
+            }
+
             return (
-                <tr key={fila.id}>
-                    <td>{fila.name}</td>
-                    <td>{fila.distance}</td>
-                    <td>{fila.type}</td>
-                    {/* <td>{fila.id_producto}</td>
-                    <td>{fila.id_estacion}</td> */}
-                    <td>{fila.stock}</td>
-                    <td>{fila.sellprice}</td>
+                <tr key={fila.estacion + "-" + fila.producto}>
+                    <td>{fila.distanciasistema.toFixed(2)} AL</td>
+                    <td>{fila.sistema}</td>
+                    <td>{fila.distanciaestacion} sl</td>
+                    <td>{fila.estacion}</td>
+                    <td>{fila.tipo}</td>
+                    <td>{nombreProducto}</td>
+                    <td>{fila.suministro}</td>
+                    <td>{fila.precio}</td>
                 </tr>
             );
         });
@@ -220,6 +253,26 @@ const BuscarProducto = () => {
                     {nombreSistema}
                     <br />
                     <br />
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Filtros dinámicos:</h4>
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="idioma">Idioma: </label>
+                    <select id="idioma" onChange={cambiaIdioma} value={idioma} disabled={cargando} className={estilos.selectAlcance}>
+                        {idiomasDisponibles.map((idioma) => {
+                            return (
+                                <option key={idioma.id} value={idioma.id}>
+                                    {idioma.texto}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    &nbsp;&nbsp;
                 </div>
             </div>
 
@@ -258,11 +311,12 @@ const BuscarProducto = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
-                                <th>Nombre</th>
-                                <th>Distancia</th>
+                                <th>Distancia sistema</th>
+                                <th>Sistema</th>
+                                <th>Distancia estación</th>
+                                <th>Estación</th>
                                 <th>Tipo</th>
-                                {/* <th>id_producto</th> */}
-                                {/* <th>id_estacion</th> */}
+                                <th>Producto</th>
                                 <th>Suministro</th>
                                 <th>Precio</th>
                             </tr>
