@@ -23,7 +23,7 @@ const BuscarProducto = () => {
     const nombreSistema = useRef(parametrosUrl.buscarProducto).current;
 
     const [cargando, setCargando] = useState(true);
-    const [alcance, setAlcance] = useState(parametrosUrl.alcance || "15");
+    const [alcance, setAlcance] = useState(parametrosUrl.alcance || alcancesDisponibles[0].id);
     const [listaProductos, setListaProductos] = useState([]);
     const [producto, setProducto] = useState(parametrosUrl.producto || "0");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
@@ -135,7 +135,9 @@ const BuscarProducto = () => {
     }
 
     async function recuperarProductosEstaciones() {
-        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
+        const filaRadio = alcancesDisponibles.find((fila) => fila.id === alcance);
+        let radio = filaRadio ? filaRadio.valor : alcancesDisponibles[0].valor;
+
         if (radio <= 0) {
             return;
         }
