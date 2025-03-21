@@ -10,6 +10,17 @@
     width: 100%;
 }
 
+:local(.tablaProductos) {
+    max-width: 33vw;
+    margin: auto;
+}
+
+@media screen and (max-width: 1024px) {
+    :local(.tablaProductos) {
+        max-width: 75vw;
+    }
+}
+
 :local(.tablaSistemas) {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
