@@ -53,3 +53,11 @@
 :local(.contador) {
     text-align: center;
 }
+
+:local(.imagenEstacion) {
+    min-height: 75px;
+    min-height: 75px;
+    max-width: 100px;
+    max-width: 100px;
+    object-fit: cover;
+}

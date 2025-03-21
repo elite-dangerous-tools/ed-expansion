@@ -19,7 +19,7 @@ for (const key in process.env) {
 const buildParams = {
     color: true,
     entryPoints: ["src/index.jsx"],
-    loader: { ".png": "file", ".svg": "file" },
+    loader: { ".png": "file", ".jpg": "file", ".svg": "file" },
     define: clientEnv,
     outdir: isDev ? carpetaDev : carpetaProd,
     minify: !isDev,

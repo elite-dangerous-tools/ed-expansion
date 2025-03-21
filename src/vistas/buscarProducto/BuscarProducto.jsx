@@ -5,6 +5,10 @@ import estilos from "./BuscarProducto.module.css";
 import { dameBusquedaMultiple, formateaNumero } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
+import outpost from "../../imagenes/Outpost.png";
+import asteroid from "../../imagenes/Asteroid.png";
+import odyssey from "../../imagenes/OdysseySettlement.png";
+
 let dominio = "https://stormseekers.twilightparadox.com";
 // if (window.location.hostname === 'localhost') {
 //     dominio = "http://localhost:5000";
@@ -38,6 +42,11 @@ const BuscarProducto = () => {
     ];
 
     const alcancesDisponibles = [
+        {
+            id: "25",
+            valor: 25,
+            texto: "25 AL",
+        },
         {
             id: "50",
             valor: 50,
@@ -267,51 +276,42 @@ const BuscarProducto = () => {
                 }
             }
 
-            let filaRenderizada = null;
+            let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema;
+            let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
 
-            if (ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema && ultimaFilaVisualizada.estacion === fila.estacion) {
-                filaRenderizada = (
-                    <tr key={fila.estacion + "-" + fila.producto}>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>{nombreProducto}</td>
-                        <td>{fila.suministro}</td>
-                        <td>{fila.precio}</td>
-                    </tr>
-                );
-            } else if (ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema) {
-                filaRenderizada = (
-                    <tr key={fila.estacion + "-" + fila.producto}>
-                        <td></td>
-                        <td></td>
-                        <td>{fila.distanciaestacion} sl</td>
-                        <td>{fila.estacion}</td>
-                        <td>{fila.tipo}</td>
-                        <td>{nombreProducto}</td>
-                        <td>{fila.suministro}</td>
-                        <td>{fila.precio}</td>
-                    </tr>
-                );
-            } else {
-                filaRenderizada = (
-                    <tr key={fila.sistema + "-" + fila.estacion + "-" + fila.producto}>
-                        <td>{fila.distanciasistema.toFixed(2)} AL</td>
-                        <td>{fila.sistema}</td>
-                        <td>{fila.distanciaestacion} sl</td>
-                        <td>{fila.estacion}</td>
-                        <td>{fila.tipo}</td>
-                        <td>{nombreProducto}</td>
-                        <td>{fila.suministro}</td>
-                        <td>{fila.precio}</td>
-                    </tr>
-                );
+            let imagenEstacion = "";
+
+            switch (fila.tipo) {
+                case "Outpost":
+                    imagenEstacion = outpost;
+                    break;
+
+                case "Asteroid base":
+                    imagenEstacion = asteroid;
+                    break;
+
+                case "Odyssey Settlement":
+                    imagenEstacion = odyssey;
+                    break;
+
+                default:
+                    break;
             }
 
             ultimaFilaVisualizada = fila;
-            return filaRenderizada;
+            return (
+                <tr key={fila.sistema + "-" + fila.estacion + "-" + fila.producto}>
+                    <td>{mismaEstacion ? null : <img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
+                    <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
+                    <td>{mismoSistema ? null : fila.sistema}</td>
+                    <td>{mismaEstacion ? null : fila.distanciaestacion} sl</td>
+                    <td>{mismaEstacion ? null : fila.estacion}</td>
+                    <td>{mismaEstacion ? null : fila.tipo}</td>
+                    <td>{nombreProducto}</td>
+                    <td>{fila.suministro}</td>
+                    <td>{fila.precio}</td>
+                </tr>
+            );
         });
     }
 
@@ -401,6 +401,7 @@ const BuscarProducto = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Distancia sistema</th>
                                 <th>Sistema</th>
                                 <th>Distancia estación</th>
