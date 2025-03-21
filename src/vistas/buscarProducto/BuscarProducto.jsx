@@ -10,6 +10,7 @@ import asteroid from "../../imagenes/Asteroid.png";
 import odyssey from "../../imagenes/OdysseySettlement.png";
 import coriolis from "../../imagenes/Coriolis.jpg";
 import ocellus from "../../imagenes/Ocellus.png";
+import megaship from "../../imagenes/Megaship.jpg";
 
 let dominio = "https://stormseekers.twilightparadox.com";
 // if (window.location.hostname === 'localhost') {
@@ -23,14 +24,14 @@ const BuscarProducto = () => {
     const nombreSistema = useRef(parametrosUrl.buscarProducto).current;
 
     const [cargando, setCargando] = useState(true);
-    const [alcance, setAlcance] = useState(parametrosUrl.alcance || alcancesDisponibles[0].id);
     const [listaProductos, setListaProductos] = useState([]);
+    const [estacionesProducto, setEstacionesProducto] = useState([]);
+
+    const [alcance, setAlcance] = useState(parametrosUrl.alcance ? parseInt(parametrosUrl.alcance) : alcancesDisponibles[0].id);
     const [producto, setProducto] = useState(parametrosUrl.producto || "0");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
-
     const [orden, setOrden] = useState(parametrosUrl.orden || "distanciasistema");
-
-    const [estacionesProducto, setEstacionesProducto] = useState([]);
+    const [suministroMinimo, setSuministroMinimo] = useState(parametrosUrl.suministroMinimo ? parseInt(parametrosUrl.suministroMinimo) : 100);
 
     const idiomasDisponibles = [
         {
@@ -45,24 +46,39 @@ const BuscarProducto = () => {
 
     const alcancesDisponibles = [
         {
-            id: "25",
-            valor: 25,
+            id: 25,
             texto: "25 AL",
         },
         {
-            id: "50",
-            valor: 50,
+            id: 50,
             texto: "50 AL",
         },
         {
-            id: "100",
-            valor: 100,
+            id: 100,
             texto: "100 AL",
         },
         {
-            id: "150",
-            valor: 150,
+            id: 150,
             texto: "150 AL (Más lento)",
+        },
+    ];
+
+    const suministrosMinimos = [
+        {
+            id: 1,
+            texto: "1",
+        },
+        {
+            id: 100,
+            texto: "100",
+        },
+        {
+            id: 1000,
+            texto: "1000",
+        },
+        {
+            id: 10000,
+            texto: "10000",
         },
     ];
 
@@ -106,6 +122,10 @@ const BuscarProducto = () => {
         setOrden(evento.target.value);
     }
 
+    function cambiaSuministroMinimo(evento) {
+        setSuministroMinimo(evento.target.value);
+    }
+
     function guardarParametros() {
         const params = new URLSearchParams(window.location.search);
 
@@ -135,10 +155,7 @@ const BuscarProducto = () => {
     }
 
     async function recuperarProductosEstaciones() {
-        const filaRadio = alcancesDisponibles.find((fila) => fila.id === alcance);
-        let radio = filaRadio ? filaRadio.valor : alcancesDisponibles[0].valor;
-
-        if (radio <= 0) {
+        if (alcance <= 0) {
             return;
         }
         if (producto == 0) {
@@ -146,7 +163,7 @@ const BuscarProducto = () => {
         }
 
         setCargando(true);
-        let urlAlcance = dominio + "/api/estaciones_producto?distancia=" + radio + "&sistema=" + nombreSistema + "&producto=" + producto;
+        let urlAlcance = dominio + "/api/estaciones_producto?distancia=" + alcance + "&sistema=" + nombreSistema + "&producto=" + producto;
         let response = await fetch(encodeURI(urlAlcance), {
             method: "GET",
         });
@@ -263,8 +280,17 @@ const BuscarProducto = () => {
         return productosOrdenados.map(mostrarProducto);
     }
 
+    function filtrarEstacionesProducto(fila) {
+        if (fila.suministro < suministroMinimo) {
+            return null;
+        }
+
+        return fila;
+    }
+
     function mostrarEstacionesProducto() {
-        let estacionesConProductosOrdenadas = estacionesProducto.sort(compararEstaciones);
+        const estacionesProductoFiltradas = estacionesProducto.filter(filtrarEstacionesProducto);
+        const estacionesConProductosOrdenadas = estacionesProductoFiltradas.sort(compararEstaciones);
 
         let ultimaFilaVisualizada = null;
 
@@ -284,9 +310,9 @@ const BuscarProducto = () => {
             let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
 
             if (fila.estacion.includes("Trailblazer")) {
-                fila.tipo = 'Mega ship';
+                fila.tipo = "Mega ship";
             }
-            
+
             let imagenEstacion = "";
             switch (fila.tipo) {
                 case "Outpost": // Medio
@@ -322,7 +348,7 @@ const BuscarProducto = () => {
                     break;
 
                 case "Mega ship": // Grande
-                    imagenEstacion = "";
+                    imagenEstacion = megaship;
                     break;
 
                 default:
@@ -373,6 +399,26 @@ const BuscarProducto = () => {
                             return (
                                 <option key={idioma.id} value={idioma.id}>
                                     {idioma.texto}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="suministroMinimo">Suministro mínimo: </label>
+                    <select
+                        id="suministroMinimo"
+                        onChange={cambiaSuministroMinimo}
+                        value={suministroMinimo}
+                        disabled={cargando}
+                        className={estilos.selectAlcance}
+                    >
+                        {suministrosMinimos.map((filaSuministroMinimo) => {
+                            return (
+                                <option key={filaSuministroMinimo.id} value={filaSuministroMinimo.id}>
+                                    {filaSuministroMinimo.texto}
                                 </option>
                             );
                         })}
