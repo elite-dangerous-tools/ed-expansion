@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./BuscarProducto.module.css";
 
-import { dameBusqueda, dameBusquedaMultiple } from "../../utilidades";
+import { dameBusquedaMultiple, formateaNumero } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
 let dominio = "https://stormseekers.twilightparadox.com";
@@ -193,12 +193,28 @@ const BuscarProducto = () => {
             descrip = articulo.name;
         }
 
-        descrip += ` (Max: ${articulo.max_stock} - Avg: ${articulo.avg_stock})`;
+        // descrip += ` (Max: ${articulo.max_stock} - Avg: ${articulo.avg_stock})`;
 
         return (
             <option key={articulo.id} value={articulo.id}>
                 {descrip}
             </option>
+        );
+    }
+
+    function mostrarDescripProducto() {
+        const productoSeleccionado = listaProductos.find((prod) => prod.id === producto);
+
+        if (!productoSeleccionado) {
+            return null;
+        }
+
+        return (
+            <div>
+                <div>Estación con más unidades: {formateaNumero(productoSeleccionado.max_stock, idioma)}</div>
+
+                <div>Media de unidades: {formateaNumero(productoSeleccionado.avg_stock, idioma)}</div>
+            </div>
         );
     }
 
@@ -292,12 +308,13 @@ const BuscarProducto = () => {
                 </div>
 
                 <div className="col-sm-12 col-md-4">
-                    <label htmlFor="faccion">Productos: </label>
-                    <select id="faccion" onChange={cambiaProducto} value={producto} disabled={cargando} className={estilos.selectProducto}>
+                    <label htmlFor="producto">Productos: </label>
+                    <select id="producto" onChange={cambiaProducto} value={producto} disabled={cargando} className={estilos.selectProducto}>
                         <option value="0"></option>
                         {mostrarProductos()}
                     </select>
                     &nbsp;&nbsp;
+                    <div>{mostrarDescripProducto()}</div>
                 </div>
             </div>
 

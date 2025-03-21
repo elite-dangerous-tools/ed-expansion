@@ -30,9 +30,7 @@ const dameUrlBase = () => {
 
 const dameBusqueda = () => {
     try {
-        let busquedaCompleta = window.location.search
-            .replace("?", "")
-            .split("&");
+        let busquedaCompleta = window.location.search.replace("?", "").split("&");
 
         let uri = busquedaCompleta[0].split("=")[1];
         return uri ? decodeURI(uri) : "";
@@ -42,33 +40,25 @@ const dameBusqueda = () => {
 };
 
 const dameBusquedaMultiple = () => {
-    try {
-        let busquedaCompleta = window.location.search
-            .replace("?", "")
-            .split("&");
+    const params = new URLSearchParams(window.location.search);
+    const queryParams = {};
 
-        let resultado = {};
-        busquedaCompleta.forEach((element) => {
-            let [key, value] = element.split("=");
-            if (resultado[key]) {
-                // Si la clave ya existe, añade el valor al array
-                resultado[key] = [].concat(resultado[key], value);
-            } else {
-                // Si la clave no existe, crea un nuevo array con el valor
-                resultado[key] = value;
-            }
-        });
+    for (const [key, value] of params.entries()) {
+        queryParams[key] = decodeURIComponent(value.replace(/\+/g, " "));
+    }
 
-        return resultado;
-    } catch (error) {
-        return {};
+    return queryParams;
+};
+
+const formateaNumero = (valor, idioma) => {
+    valor = parseFloat(valor);
+    if (idioma === "en") {
+        return new Intl.NumberFormat("en-US", { currency: "USD" }).format(valor);
+    } else if (idioma === "es") {
+        return new Intl.NumberFormat("de-DE", { currency: "EUR" }).format(valor);
+    } else {
+        return new Intl.NumberFormat("de-DE", { currency: "EUR" }).format(valor);
     }
 };
 
-export {
-    clonar,
-    semverGreaterThan,
-    dameUrlBase,
-    dameBusqueda,
-    dameBusquedaMultiple,
-};
+export { clonar, semverGreaterThan, dameUrlBase, dameBusqueda, dameBusquedaMultiple, formateaNumero };
