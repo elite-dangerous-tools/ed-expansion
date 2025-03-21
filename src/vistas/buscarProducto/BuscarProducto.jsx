@@ -8,6 +8,8 @@ import Progreso from "../../elementos/Progreso";
 import outpost from "../../imagenes/Outpost.png";
 import asteroid from "../../imagenes/Asteroid.png";
 import odyssey from "../../imagenes/OdysseySettlement.png";
+import coriolis from "../../imagenes/Coriolis.jpg";
+import ocellus from "../../imagenes/Ocellus.png";
 
 let dominio = "https://stormseekers.twilightparadox.com";
 // if (window.location.hostname === 'localhost') {
@@ -279,19 +281,46 @@ const BuscarProducto = () => {
             let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema;
             let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
 
+            if (fila.estacion.includes("Trailblazer")) {
+                fila.tipo = 'Mega ship';
+            }
+            
             let imagenEstacion = "";
-
             switch (fila.tipo) {
-                case "Outpost":
+                case "Outpost": // Medio
                     imagenEstacion = outpost;
                     break;
 
-                case "Asteroid base":
+                case "Asteroid base": // Grande
                     imagenEstacion = asteroid;
                     break;
 
-                case "Odyssey Settlement":
+                case "Odyssey Settlement": // ???
                     imagenEstacion = odyssey;
+                    break;
+
+                case "Coriolis Starport": // Grande
+                    imagenEstacion = coriolis;
+                    break;
+
+                case "Planetary Port": // Grande??
+                    imagenEstacion = "";
+                    break;
+
+                case "Planetary Outpost": // Grande??
+                    imagenEstacion = "";
+                    break;
+
+                case "Ocellus Starport": // Grande
+                    imagenEstacion = ocellus;
+                    break;
+
+                case "Orbis Starport": // Grande
+                    imagenEstacion = "";
+                    break;
+
+                case "Mega ship": // Grande
+                    imagenEstacion = "";
                     break;
 
                 default:
