@@ -86,12 +86,11 @@ const listaProdInicial = valoresInicialesProductos();
 const BuscarProducto = () => {
     const isMounted = useRef(false);
 
-    const nombreSistema = useRef(parametrosUrl.buscarProducto).current;
-
     const [cargando, setCargando] = useState(true);
     const [listaProductos, setListaProductos] = useState([]);
     const [estacionesProducto, setEstacionesProducto] = useState([]);
 
+    const [nombreSistema, setNombreSistema] = useState(parametrosUrl.buscarProducto || "Sol");
     const [alcance, setAlcance] = useState(parametrosUrl.alcance ? parseInt(parametrosUrl.alcance) : alcancesDisponibles[0].id);
     const [productos, setProductos] = useState([]);
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
