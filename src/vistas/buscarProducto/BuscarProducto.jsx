@@ -451,8 +451,8 @@ const BuscarProducto = () => {
                     <td>{mismaEstacion ? null : fila.estacion}</td>
                     <td>{mismaEstacion ? null : fila.tipo}</td>
 
-                    <td>{mismoSistema ? null : fila.sistema}</td>
                     <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
+                    <td>{mismoSistema ? null : fila.sistema}</td>
 
                     <td>{nombreProducto}</td>
                     <td>{formateaNumero(fila.suministro, idioma)}</td>
