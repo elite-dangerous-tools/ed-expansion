@@ -9,9 +9,12 @@ import Progreso from "../../elementos/Progreso";
 import outpost from "../../imagenes/Outpost.png";
 import asteroid from "../../imagenes/Asteroid.png";
 import odyssey from "../../imagenes/OdysseySettlement.png";
-import coriolis from "../../imagenes/Coriolis.jpg";
+import coriolis from "../../imagenes/Coriolis.png";
 import ocellus from "../../imagenes/Ocellus.png";
+import orbis from "../../imagenes/Orbis.png";
 import megaship from "../../imagenes/Megaship.jpg";
+import PlanetaryPort from "../../imagenes/PlanetaryPort.png";
+import planetaryOutpost from "../../imagenes/PlanetaryOutpost.png";
 
 let dominio = "https://stormseekers.twilightparadox.com";
 // if (window.location.hostname === "localhost") {
@@ -93,6 +96,8 @@ const BuscarProducto = () => {
     const [nombreSistema, setNombreSistema] = useState(parametrosUrl.buscarProducto || "Sol");
     const [alcance, setAlcance] = useState(parametrosUrl.alcance ? parseInt(parametrosUrl.alcance) : alcancesDisponibles[0].id);
     const [productos, setProductos] = useState([]);
+    const [plataforma, setPlataforma] = useState(parametrosUrl.plataforma || "M");
+    const [planetaria, setPlanetaria] = useState(parametrosUrl.planetaria || "1");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
     const [orden, setOrden] = useState(parametrosUrl.orden || "distanciasistema");
     const [suministroMinimo, setSuministroMinimo] = useState(parametrosUrl.suministroMinimo ? parseInt(parametrosUrl.suministroMinimo) : 100);
@@ -116,7 +121,7 @@ const BuscarProducto = () => {
     useEffect(() => {
         // hemos cambiado el alcance o el producto o el idioma
         guardarParametros();
-    }, [alcance, productos, idioma, orden, suministroMinimo]);
+    }, [alcance, productos, idioma, orden, suministroMinimo, plataforma, planetaria]);
 
     useEffect(() => {
         // hemos recuperado los productos
@@ -161,6 +166,14 @@ const BuscarProducto = () => {
         setOrden(evento.target.value);
     }
 
+    function cambiaPlataforma(evento) {
+        setPlataforma(evento.target.value);
+    }
+
+    function cambiaPlanetaria(evento) {
+        setPlanetaria(evento.target.value);
+    }
+
     function cambiaSuministroMinimo(evento) {
         setSuministroMinimo(evento.target.value);
     }
@@ -171,6 +184,8 @@ const BuscarProducto = () => {
         params.set("alcance", alcance);
         params.set("idioma", idioma);
         params.set("orden", orden);
+        params.set("plataforma", plataforma);
+        params.set("planetaria", planetaria);
         params.set("suministroMinimo", suministroMinimo);
 
         const valoresProductos = productos.map((item) => item.value);
@@ -342,6 +357,32 @@ const BuscarProducto = () => {
         let ultimaFilaVisualizada = null;
 
         return estacionesConProductosOrdenadas.map((fila) => {
+            // Filtro de plataforma
+            if (plataforma === "L") {
+                switch (fila.tipo) {
+                    case "Outpost":
+                    // case "Planetary Outpost":
+                    // case "Odyssey Settlement": // Alguno podría tener plataforma grande
+                        return null;
+
+                    default:
+                        break;
+                }
+            }
+
+            // Filtro de planeta
+            if (planetaria === "0") {
+                switch (fila.tipo) {
+                    case "Planetary Outpost":
+                    case "Planetary Port":
+                    case "Odyssey Settlement":
+                        return null;
+
+                    default:
+                        break;
+                }
+            }
+
             const productoFila = listaProductos.find((prod) => prod.id === fila.producto);
 
             let nombreProducto = fila.producto;
@@ -379,11 +420,11 @@ const BuscarProducto = () => {
                     break;
 
                 case "Planetary Port": // Grande??
-                    imagenEstacion = "";
+                    imagenEstacion = PlanetaryPort;
                     break;
 
                 case "Planetary Outpost": // Grande??
-                    imagenEstacion = "";
+                    imagenEstacion = planetaryOutpost;
                     break;
 
                 case "Ocellus Starport": // Grande
@@ -391,7 +432,7 @@ const BuscarProducto = () => {
                     break;
 
                 case "Orbis Starport": // Grande
-                    imagenEstacion = "";
+                    imagenEstacion = orbis;
                     break;
 
                 case "Mega ship": // Grande
@@ -406,14 +447,16 @@ const BuscarProducto = () => {
             return (
                 <tr key={fila.sistema + "-" + fila.estacion + "-" + fila.producto}>
                     <td>{mismaEstacion ? null : <img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
-                    <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
-                    <td>{mismoSistema ? null : fila.sistema}</td>
                     <td>{mismaEstacion ? null : fila.distanciaestacion + " sl"}</td>
                     <td>{mismaEstacion ? null : fila.estacion}</td>
                     <td>{mismaEstacion ? null : fila.tipo}</td>
+
+                    <td>{mismoSistema ? null : fila.sistema}</td>
+                    <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
+
                     <td>{nombreProducto}</td>
-                    <td>{fila.suministro}</td>
-                    <td>{fila.precio}</td>
+                    <td>{formateaNumero(fila.suministro, idioma)}</td>
+                    <td>{formateaNumero(fila.precio, idioma)}</td>
                 </tr>
             );
         });
@@ -439,8 +482,8 @@ const BuscarProducto = () => {
                     <h4>Filtros dinámicos:</h4>
                 </div>
 
-                <div className="col-sm-12 col-md-4">
-                    <label htmlFor="idioma">Idioma: </label>
+                <div className="col-sm-6 col-md-3">
+                    <label htmlFor="idioma">Idioma (de productos y números): </label>
                     <select id="idioma" onChange={cambiaIdioma} value={idioma} disabled={cargando} className={estilos.selectAlcance}>
                         {idiomasDisponibles.map((idioma) => {
                             return (
@@ -453,7 +496,7 @@ const BuscarProducto = () => {
                     &nbsp;&nbsp;
                 </div>
 
-                <div className="col-sm-12 col-md-4">
+                <div className="col-sm-6 col-md-3">
                     <label htmlFor="suministroMinimo">Suministro mínimo: </label>
                     <select
                         id="suministroMinimo"
@@ -469,6 +512,24 @@ const BuscarProducto = () => {
                                 </option>
                             );
                         })}
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                    <label htmlFor="plataforma">Plataforma más grande: </label>
+                    <select id="plataforma" onChange={cambiaPlataforma} value={plataforma} disabled={cargando} className={estilos.selectPlataforma}>
+                        <option value="M">Mediana</option>
+                        <option value="L">Grande</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                    <label htmlFor="planetaria">Usar estaciones planetarias: </label>
+                    <select id="planetaria" onChange={cambiaPlanetaria} value={planetaria} disabled={cargando} className={estilos.selectPlataforma}>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
                     </select>
                     &nbsp;&nbsp;
                 </div>
@@ -545,12 +606,15 @@ const BuscarProducto = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
+
                                 <th></th>
-                                <th>Distancia sistema</th>
-                                <th>Sistema</th>
                                 <th>Distancia estación</th>
                                 <th>Estación</th>
                                 <th>Tipo</th>
+
+                                <th>Distancia sistema</th>
+                                <th>Sistema</th>
+
                                 <th>Producto</th>
                                 <th>Suministro</th>
                                 <th>Precio</th>

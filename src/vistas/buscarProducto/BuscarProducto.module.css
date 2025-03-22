@@ -6,6 +6,10 @@
     width: 250px;
 }
 
+:local(.selectPlataforma) {
+    width: 200px;
+}
+
 :local(.tablaSistemas) {
     width: 100%;
 }
@@ -66,9 +70,13 @@
 }
 
 :local(.imagenEstacion) {
-    min-height: 75px;
-    min-height: 75px;
-    max-width: 100px;
-    max-width: 100px;
+    min-height: 50px;
+    min-height: 50px;
+    max-width: 75px;
+    max-width: 75px;
     object-fit: cover;
+}
+
+label {
+    display: block;
 }
