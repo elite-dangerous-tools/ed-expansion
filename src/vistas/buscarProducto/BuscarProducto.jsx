@@ -350,6 +350,47 @@ const BuscarProducto = () => {
         return fila;
     }
 
+    function tipoEstacion(nombreTipo) {
+        if (idioma === "en") {
+            return nombreTipo;
+        }
+
+        if (idioma !== "es") {
+            return nombreTipo;
+        }
+
+        switch (nombreTipo) {
+            case "Outpost":
+                break;
+
+            case "Asteroid base":
+                return "Base de Asteroide";
+
+            case "Odyssey Settlement":
+                break;
+
+            case "Planetary Port":
+                break;
+
+            case "Planetary Outpost":
+                break;
+
+            case "Ocellus Starport":
+                break;
+
+            case "Orbis Starport":
+                break;
+
+            case "Mega ship":
+                break;
+
+            default:
+                break;
+        }
+
+        return nombreTipo;
+    }
+
     function mostrarEstacionesProducto() {
         const estacionesProductoFiltradas = estacionesProducto.filter(filtrarEstacionesProducto);
         const estacionesConProductosOrdenadas = estacionesProductoFiltradas.sort(compararEstaciones);
@@ -357,12 +398,17 @@ const BuscarProducto = () => {
         let ultimaFilaVisualizada = null;
 
         return estacionesConProductosOrdenadas.map((fila) => {
+            if (fila.estacion.includes("Trailblazer")) {
+                // Los Trailblazer son como meganaves
+                fila.tipo = "Mega ship";
+            }
+
             // Filtro de plataforma
             if (plataforma === "L") {
                 switch (fila.tipo) {
                     case "Outpost":
-                    // case "Planetary Outpost":
-                    // case "Odyssey Settlement": // Alguno podría tener plataforma grande
+                        // case "Planetary Outpost":
+                        // case "Odyssey Settlement": // Alguno podría tener plataforma grande
                         return null;
 
                     default:
@@ -396,10 +442,6 @@ const BuscarProducto = () => {
 
             let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema;
             let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
-
-            if (fila.estacion.includes("Trailblazer")) {
-                fila.tipo = "Mega ship";
-            }
 
             let imagenEstacion = "";
             switch (fila.tipo) {
@@ -449,7 +491,7 @@ const BuscarProducto = () => {
                     <td>{mismaEstacion ? null : <img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
                     <td>{mismaEstacion ? null : fila.distanciaestacion + " sl"}</td>
                     <td>{mismaEstacion ? null : fila.estacion}</td>
-                    <td>{mismaEstacion ? null : fila.tipo}</td>
+                    <td>{mismaEstacion ? null : tipoEstacion(fila.tipo)}</td>
 
                     <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
                     <td>{mismoSistema ? null : fila.sistema}</td>
@@ -606,7 +648,6 @@ const BuscarProducto = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
-
                                 <th></th>
                                 <th>Distancia estación</th>
                                 <th>Estación</th>
