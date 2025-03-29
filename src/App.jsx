@@ -14,7 +14,7 @@ import NoMatch from "./vistas/noMatch/NoMatch";
 import Busqueda from "./vistas/busqueda/Busqueda";
 import Sistema from "./vistas/sistema/Sistema";
 import SistemaIniciarColonizacion from "./vistas/sistemaIniciarColonizar/SistemaIniciarColonizacion";
-import BuscarProducto from "./vistas/buscarProducto/BuscarProducto";
+import InicioBuscarProducto from "./vistas/buscarProducto/InicioBuscarProducto";
 // import SistemaExpandir from "./vistas/sistemaExpandir/SistemaExpandir";
 
 const App = (props) => {
@@ -67,7 +67,7 @@ const App = (props) => {
                 return <SistemaIniciarColonizacion />;
 
             case ruta.includes("?buscarProducto="):
-                return <BuscarProducto />;
+                return <InicioBuscarProducto />;
 
             // case ruta.includes("?sistemaExpandir="):
             //     return <SistemaExpandir />;

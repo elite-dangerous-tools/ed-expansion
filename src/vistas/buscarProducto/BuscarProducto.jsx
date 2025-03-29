@@ -3,7 +3,7 @@ import Select from "react-select";
 
 import estilos from "./BuscarProducto.module.css";
 
-import { dameBusquedaMultiple, formateaNumero } from "../../utilidades";
+import { formateaNumero } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
 import outpost from "../../imagenes/Outpost.png";
@@ -70,23 +70,7 @@ const suministrosMinimos = [
     },
 ];
 
-const valoresInicialesProductos = () => {
-    if (!parametrosUrl.productos) {
-        return [];
-    }
-
-    return parametrosUrl.productos.split(",").map((fila) => {
-        return {
-            value: fila,
-            label: fila,
-        };
-    });
-};
-
-const parametrosUrl = dameBusquedaMultiple();
-const listaProdInicial = valoresInicialesProductos();
-
-const BuscarProducto = () => {
+const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     const isMounted = useRef(false);
 
     const [cargando, setCargando] = useState(true);
