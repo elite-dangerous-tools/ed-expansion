@@ -354,7 +354,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 break;
 
             case "Planetary Port":
-                break;
+                return "Base Planetaria";
 
             case "Planetary Outpost":
                 break;
