@@ -79,7 +79,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
 
     const [nombreSistema, setNombreSistema] = useState(parametrosUrl.buscarProducto || "Sol");
     const [alcance, setAlcance] = useState(parametrosUrl.alcance ? parseInt(parametrosUrl.alcance) : alcancesDisponibles[0].id);
-    const [productos, setProductos] = useState([]);
+    const [productosSeleccionados, setProductosSeleccionados] = useState([]);
     const [plataforma, setPlataforma] = useState(parametrosUrl.plataforma || "M");
     const [planetaria, setPlanetaria] = useState(parametrosUrl.planetaria || "1");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
@@ -100,17 +100,17 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     useEffect(() => {
         // hemos cambiado el alcance o el producto
         recuperarProductosEstaciones();
-    }, [alcance, productos]);
+    }, [alcance, productosSeleccionados]);
 
     useEffect(() => {
         // hemos cambiado el alcance o el producto o el idioma
         guardarParametros();
-    }, [alcance, productos, idioma, orden, suministroMinimo, plataforma, planetaria]);
+    }, [alcance, productosSeleccionados, idioma, orden, suministroMinimo, plataforma, planetaria]);
 
     useEffect(() => {
         // hemos recuperado los productos
 
-        if (listaProdInicial.length > 0 && productos.length === 0 && listaProductos.length > 0) {
+        if (listaProdInicial.length > 0 && productosSeleccionados.length === 0 && listaProductos.length > 0) {
             let nuevosProductos = [];
             listaProdInicial.forEach((fila) => {
                 const articulo = listaProductos.find((item) => item.id === fila.value);
@@ -128,7 +128,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 });
             });
 
-            setProductos(nuevosProductos);
+            setProductosSeleccionados(nuevosProductos);
         }
     }, [listaProductos]);
 
@@ -143,7 +143,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     }
 
     function cambiaProductos(articulos, config) {
-        setProductos(articulos);
+        setProductosSeleccionados(articulos);
     }
 
     function cambiaOrden(evento) {
@@ -172,7 +172,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         params.set("planetaria", planetaria);
         params.set("suministroMinimo", suministroMinimo);
 
-        const valoresProductos = productos.map((item) => item.value);
+        const valoresProductos = productosSeleccionados.map((item) => item.value);
         params.set("productos", valoresProductos);
 
         // Actualizar la URL sin recargar la página
@@ -200,11 +200,11 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             return;
         }
 
-        if (productos.length === 0) {
+        if (productosSeleccionados.length === 0) {
             return;
         }
 
-        const valoresProductos = productos.map((item) => item.value);
+        const valoresProductos = productosSeleccionados.map((item) => item.value);
 
         setCargando(true);
         let urlAlcance = dominio + "/api/estaciones_producto?distancia=" + alcance + "&sistema=" + nombreSistema + "&productos=" + valoresProductos;
@@ -236,6 +236,20 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             valor1 = a.id.toLowerCase();
             valor2 = b.id.toLowerCase();
         }
+
+        if (valor1 < valor2) {
+            return -1;
+        }
+        if (valor1 > valor2) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    function compararProductosSeleccionados(a, b) {
+        const valor1 = a.label.toLowerCase();
+        const valor2 = b.label.toLowerCase();
 
         if (valor1 < valor2) {
             return -1;
@@ -286,7 +300,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     }
 
     function mostrarDescripProductos() {
-        return productos.map((fila) => {
+        return productosSeleccionados.map((fila) => {
             const productoSeleccionado = listaProductos.find((prod) => prod.id === fila.value);
 
             let nombreProducto = productoSeleccionado.id;
@@ -321,8 +335,29 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         };
     }
 
+    function mostrarProductosSeleccionados() {
+        const listaProdSeleccionados = productosSeleccionados.map((fila) => {
+            const articulo = listaProductos.find((item) => item.id === fila.value);
+
+            let nombreProducto = articulo.id;
+            if (idioma === "es") {
+                nombreProducto = articulo.nombre;
+            } else if (idioma === "en") {
+                nombreProducto = articulo.name;
+            }
+
+            return {
+                value: fila.value,
+                label: nombreProducto,
+            };
+        });
+
+        const productosSeleccionadosOrdenados = listaProdSeleccionados.sort(compararProductosSeleccionados);
+        return productosSeleccionadosOrdenados;
+    }
+
     function productosOrdenados() {
-        let listaProductosOrdenados = listaProductos.sort(compararProductos);
+        const listaProductosOrdenados = listaProductos.sort(compararProductos);
         return listaProductosOrdenados.map(datosProducto);
     }
 
@@ -598,7 +633,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="producto">Productos: </label>
                     <Select
-                        value={productos}
+                        value={mostrarProductosSeleccionados()}
                         isMulti={true}
                         name="productos"
                         options={productosOrdenados()}
