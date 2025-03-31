@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Sistema.module.css";
 
-import { dameBusqueda } from "../../utilidades";
+import { dameBusqueda, formateaNumero } from "../../utilidades";
 import Enlace from "../../elementos/Enlace";
 import Progreso from "../../elementos/Progreso";
 import Boton from "../../elementos/Boton";
@@ -18,6 +18,7 @@ const Sistema = () => {
     const [trafico, setTrafico] = useState({});
     const [muertes, setMuertes] = useState({});
     const [facciones, setFacciones] = useState({});
+    const [trailblazers, setTrailblazers] = useState([]);
 
     async function recuperarSistema() {
         let response = await fetch(
@@ -30,6 +31,17 @@ const Sistema = () => {
         if (response.status >= 200 && response.status < 300) {
             const datos = await response.json();
             setSistema(datos);
+        }
+    }
+
+    async function recuperarTrailblazers() {
+        let response = await fetch("https://stormseekers.twilightparadox.com/api/distancia_trailblazer?sistema=" + nombreSistema, {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const datos = await response.json();
+            setTrailblazers(datos);
         }
     }
 
@@ -103,31 +115,34 @@ const Sistema = () => {
 
         if (estaciones && estaciones.stations) {
             estaciones.stations.forEach((estacion) => {
-
                 if (estacion.type === "Fleet Carrier") {
                     return;
                 }
 
                 listaEstaciones.push(
-                    <tr key={estacion.id} >
-                        <td>
-                            {estacion.name}
-                        </td>
-                        <td>
-                            {estacion.type}
-                        </td>
-                        <td>
-                            {estacion.economy}
-                        </td>
-                        <td>
-                            {estacion.secondEconomy}
-                        </td>
+                    <tr key={estacion.id}>
+                        <td>{estacion.name}</td>
+                        <td>{estacion.type}</td>
+                        <td>{estacion.economy}</td>
+                        <td>{estacion.secondEconomy}</td>
                     </tr>
                 );
             });
         }
 
         return listaEstaciones;
+    }
+
+    function pintarTrailblazers() {
+        return trailblazers.map((fila) => {
+            return (
+                <tr key={fila.sistema + "-" + fila.estacion}>
+                    <td>{fila.sistema}</td>
+                    <td>{fila.estacion}</td>
+                    <td>{formateaNumero(fila.distanciasistema.toFixed(2), 'es')} al</td>
+                </tr>
+            );
+        });
     }
 
     function pintarFacciones() {
@@ -179,6 +194,10 @@ const Sistema = () => {
         setTabVisible(3);
     }
 
+    function verTrailblazers() {
+        setTabVisible(4);
+    }
+
     useEffect(() => {
         // Constructor
         isMounted.current = true;
@@ -188,6 +207,7 @@ const Sistema = () => {
         recuperarTraficoSistema();
         recuperarMuertesSistema();
         recuperarFaccionesSistema();
+        recuperarTrailblazers();
     }, []);
 
     let claseColumna = "col-sm-12 col-md-6 col-lg-4 " + estilos.columna;
@@ -286,7 +306,10 @@ const Sistema = () => {
                         </Boton>
                         {/* <Boton desactivado={tabVisible === 3} fnClick={verPuntos}>
                             Ver Puntos del sistema
-                        </Boton> */}
+                            </Boton> */}
+                        <Boton desactivado={tabVisible === 4} fnClick={verTrailblazers}>
+                            Ver Trailblazers
+                        </Boton>
                     </div>
                 </div>
             </div>
@@ -415,6 +438,29 @@ const Sistema = () => {
                                         </tr>
                                     </thead>
                                     {/* <tbody>{pintarPuntos()}</tbody> */}
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </>
+            ) : null}
+
+            {tabVisible === 4 ? (
+                <>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <fieldset>
+                                <h3 className={estilos.titulo}>Trailblazers más cercanos</h3>
+                                <Progreso visible={!trailblazers.length > 0} />
+                                <table className={estilos.tablaFacciones}>
+                                    <thead>
+                                        <tr>
+                                            <th>Sistema</th>
+                                            <th>Estación</th>
+                                            <th>Distancia</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>{pintarTrailblazers()}</tbody>
                                 </table>
                             </fieldset>
                         </div>
