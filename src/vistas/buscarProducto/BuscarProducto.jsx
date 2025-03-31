@@ -65,6 +65,10 @@ const suministrosMinimos = [
         texto: "1000",
     },
     {
+        id: 5000,
+        texto: "5000",
+    },
+    {
         id: 10000,
         texto: "10000",
     },
@@ -268,8 +272,8 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         switch (orden) {
             case "suministro":
                 // Orden descendente
-                valor1 = parseFloat(b.suministro);
-                valor2 = parseFloat(a.suministro);
+                valor1 = parseFloat(b.suministroTotal);
+                valor2 = parseFloat(a.suministroTotal);
 
                 if (valor1 === valor2) {
                 }
@@ -366,6 +370,37 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             return null;
         }
 
+        if (fila.estacion.includes("Trailblazer")) {
+            // Los Trailblazer son como meganaves
+            fila.tipo = "Mega ship";
+        }
+
+        // Filtro de plataforma
+        if (plataforma === "L") {
+            switch (fila.tipo) {
+                case "Outpost":
+                    // case "Planetary Outpost":
+                    // case "Odyssey Settlement": // Alguno podría tener plataforma grande
+                    return null;
+
+                default:
+                    break;
+            }
+        }
+
+        // Filtro de planeta
+        if (planetaria === "0") {
+            switch (fila.tipo) {
+                case "Planetary Outpost":
+                case "Planetary Port":
+                case "Odyssey Settlement":
+                    return null;
+
+                default:
+                    break;
+            }
+        }
+
         return fila;
     }
 
@@ -410,47 +445,28 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         return nombreTipo;
     }
 
-    function mostrarEstacionesProducto() {
-        const estacionesProductoFiltradas = estacionesProducto.filter(filtrarEstacionesProducto);
-        const estacionesConProductosOrdenadas = estacionesProductoFiltradas.sort(compararEstaciones);
+    function agruparEstacionesProductos(filas) {
+        const estacionesAgrupadas = [];
 
-        let ultimaFilaVisualizada = null;
+        let filaActual = undefined;
+        filas.forEach((fila) => {
+            let mismoSistema = filaActual && filaActual.sistema === fila.sistema;
+            let mismaEstacionYSistema = filaActual && mismoSistema && filaActual.estacion === fila.estacion;
 
-        return estacionesConProductosOrdenadas.map((fila) => {
-            if (fila.estacion.includes("Trailblazer")) {
-                // Los Trailblazer son como meganaves
-                fila.tipo = "Mega ship";
-            }
-
-            // Filtro de plataforma
-            if (plataforma === "L") {
-                switch (fila.tipo) {
-                    case "Outpost":
-                        // case "Planetary Outpost":
-                        // case "Odyssey Settlement": // Alguno podría tener plataforma grande
-                        return null;
-
-                    default:
-                        break;
+            if (!mismaEstacionYSistema) {
+                if (filaActual !== undefined) {
+                    estacionesAgrupadas.push(filaActual);
                 }
+
+                filaActual = { ...fila };
+                filaActual.suministroTotal = 0;
+                filaActual.suministro = [];
+                filaActual.producto = [];
+                filaActual.precio = [];
             }
-
-            // Filtro de planeta
-            if (planetaria === "0") {
-                switch (fila.tipo) {
-                    case "Planetary Outpost":
-                    case "Planetary Port":
-                    case "Odyssey Settlement":
-                        return null;
-
-                    default:
-                        break;
-                }
-            }
-
-            const productoFila = listaProductos.find((prod) => prod.id === fila.producto);
 
             let nombreProducto = fila.producto;
+            const productoFila = listaProductos.find((prod) => prod.id === fila.producto);
             if (productoFila) {
                 if (idioma === "es") {
                     nombreProducto = productoFila.nombre;
@@ -459,8 +475,27 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 }
             }
 
+            filaActual.suministroTotal += fila.suministro;
+            filaActual.suministro.push(<div>{formateaNumero(fila.suministro, idioma)}</div>);
+            filaActual.producto.push(<div>{nombreProducto}</div>);
+            filaActual.precio.push(<div>{formateaNumero(fila.precio, idioma)}</div>);
+        });
+
+        if (filaActual !== undefined) {
+            estacionesAgrupadas.push(filaActual);
+        }
+        return estacionesAgrupadas;
+    }
+
+    function mostrarEstacionesProducto() {
+        const estacionesProductoFiltradas = estacionesProducto.filter(filtrarEstacionesProducto);
+        const estacionesAgrupadasPorProducto = agruparEstacionesProductos(estacionesProductoFiltradas);
+        const estacionesConProductosOrdenadas = estacionesAgrupadasPorProducto.sort(compararEstaciones);
+
+        let ultimaFilaVisualizada = null;
+        return estacionesConProductosOrdenadas.map((fila) => {
             let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema;
-            let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
+            // let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
 
             let imagenEstacion = "";
             switch (fila.tipo) {
@@ -506,18 +541,18 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
 
             ultimaFilaVisualizada = fila;
             return (
-                <tr key={fila.sistema + "-" + fila.estacion + "-" + fila.producto}>
-                    <td>{mismaEstacion ? null : <img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
-                    <td>{mismaEstacion ? null : fila.distanciaestacion + " sl"}</td>
-                    <td>{mismaEstacion ? null : fila.estacion}</td>
-                    <td>{mismaEstacion ? null : tipoEstacion(fila.tipo)}</td>
+                <tr key={fila.sistema + "-" + fila.estacion}>
+                    <td>{<img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
+                    <td>{fila.distanciaestacion + " sl"}</td>
+                    <td>{fila.estacion}</td>
+                    <td>{tipoEstacion(fila.tipo)}</td>
 
                     <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
                     <td>{mismoSistema ? null : fila.sistema}</td>
 
-                    <td>{nombreProducto}</td>
-                    <td>{formateaNumero(fila.suministro, idioma)}</td>
-                    <td>{formateaNumero(fila.precio, idioma)}</td>
+                    <td>{fila.producto}</td>
+                    <td>{fila.suministro}</td>
+                    <td>{fila.precio}</td>
                 </tr>
             );
         });
@@ -668,14 +703,16 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Distancia estación</th>
+                                <th width={50}>Distancia estación</th>
                                 <th>Estación</th>
                                 <th>Tipo</th>
 
-                                <th>Distancia sistema</th>
+                                <th width={50}>Distancia sistema</th>
                                 <th>Sistema</th>
 
-                                <th>Producto</th>
+                                <th width={175}>
+                                    Producto
+                                </th>
                                 <th>Suministro</th>
                                 <th>Precio</th>
                             </tr>
