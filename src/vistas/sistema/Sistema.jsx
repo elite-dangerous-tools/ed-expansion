@@ -138,8 +138,9 @@ const Sistema = () => {
             return (
                 <tr key={fila.sistema + "-" + fila.estacion}>
                     <td>{fila.sistema}</td>
-                    <td>{fila.estacion}</td>
                     <td>{formateaNumero(fila.distanciasistema.toFixed(2), 'es')} al</td>
+                    <td>{fila.estacion}</td>
+                    <td>{formateaNumero(fila.distanciaestacion.toFixed(2), 'es')} sl</td>
                 </tr>
             );
         });
@@ -456,8 +457,9 @@ const Sistema = () => {
                                     <thead>
                                         <tr>
                                             <th>Sistema</th>
+                                            <th>Distancia Sistema</th>
                                             <th>Estación</th>
-                                            <th>Distancia</th>
+                                            <th>Distancia Estación</th>
                                         </tr>
                                     </thead>
                                     <tbody>{pintarTrailblazers()}</tbody>

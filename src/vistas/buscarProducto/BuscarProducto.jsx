@@ -34,6 +34,10 @@ const idiomasDisponibles = [
 
 const alcancesDisponibles = [
     {
+        id: 10,
+        texto: "10 AL",
+    },
+    {
         id: 25,
         texto: "25 AL",
     },
@@ -43,7 +47,7 @@ const alcancesDisponibles = [
     },
     {
         id: 100,
-        texto: "100 AL",
+        texto: "100 AL (Lento)",
     },
     {
         id: 150,
@@ -53,12 +57,16 @@ const alcancesDisponibles = [
 
 const suministrosMinimos = [
     {
-        id: 1,
-        texto: "1",
+        id: 10,
+        texto: "10",
     },
     {
         id: 100,
         texto: "100",
+    },
+    {
+        id: 500,
+        texto: "500",
     },
     {
         id: 1000,
@@ -604,7 +612,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                         {suministrosMinimos.map((filaSuministroMinimo) => {
                             return (
                                 <option key={filaSuministroMinimo.id} value={filaSuministroMinimo.id}>
-                                    {filaSuministroMinimo.texto}
+                                    {formateaNumero(filaSuministroMinimo.id, idioma)}
                                 </option>
                             );
                         })}
@@ -640,7 +648,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     <label htmlFor="columna">Columna: </label>
                     <select id="columna" onChange={cambiaOrden} value={orden} disabled={cargando} className={estilos.selectAlcance}>
                         <option value="distanciasistema">Distancia Sistema</option>
-                        <option value="suministro">Suministro</option>
+                        <option value="suministro">Suministro Total</option>
                     </select>
                     &nbsp;&nbsp;
                 </div>
