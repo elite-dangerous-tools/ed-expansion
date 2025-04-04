@@ -34,8 +34,8 @@ const idiomasDisponibles = [
 
 const alcancesDisponibles = [
     {
-        id: 10,
-        texto: "10 AL",
+        id: 15,
+        texto: "15 AL",
     },
     {
         id: 25,
