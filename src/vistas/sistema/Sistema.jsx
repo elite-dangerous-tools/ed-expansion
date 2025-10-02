@@ -280,9 +280,15 @@ const Sistema = () => {
                         </div>
 
                         <div className="row">
-                            <div className="col-sm-12">
+                            <div className="col-sm-12 col-md-6">
                                 <div className={estilos.titulo}>
                                     <Enlace to={"?sistemaIniciarColonizacion=" + sistema.name}>Buscar sistemas colonizables desde aquí</Enlace>
+                                </div>
+                            </div>
+                            
+                            <div className="col-sm-12 col-md-6">
+                                <div className={estilos.titulo}>
+                                    <Enlace to={"?buscarProducto=" + sistema.name}>Buscar estaciones para comprar productos</Enlace>
                                 </div>
                             </div>
                         </div>

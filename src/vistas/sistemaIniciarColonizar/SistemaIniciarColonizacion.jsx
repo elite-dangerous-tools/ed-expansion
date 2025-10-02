@@ -4,6 +4,7 @@ import estilos from "./SistemaIniciarColonizacion.module.css";
 
 import { dameBusqueda } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
+import Enlace from "../../elementos/Enlace";
 
 const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
@@ -94,21 +95,21 @@ const SistemaIniciarColonizacion = () => {
 
             if (modoLento || indice % 10 === 0) {
                 // En modo lento o cada 10 esperamos
-                await recuperarInfoSistema(sistema.nombre, sistema.distancia, modoLento);
+                await recuperarInfoSistema(sistema, modoLento);
             } else {
-                recuperarInfoSistema(sistema.nombre, sistema.distancia, modoLento);
+                recuperarInfoSistema(sistema, modoLento);
             }
 
             indice++;
         }
     }
 
-    async function recuperarInfoSistema(nombre, distanciaOrigen, modoLento) {
+    async function recuperarInfoSistema(sistema, modoLento) {
         try {
             if (modoLento) {
-                await funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+                await comprobarSistema(sistema, modoLento);
             } else {
-                funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento);
+                comprobarSistema(sistema, modoLento);
             }
         } catch (error) {
             sistemasRecuperados++;
@@ -116,52 +117,41 @@ const SistemaIniciarColonizacion = () => {
         }
     }
 
-    async function funcionRecuperarInfoSistema(nombre, distanciaOrigen, modoLento) {
-        // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
-        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/factions?systemName=" + nombre), {
-            method: "GET",
-        });
-
-        // Comprobamos que no haya nada, ni otros comandantes
-        if (response.status >= 200 && response.status < 300) {
-            const infoSistema = await response.json();
-
-            if (infoSistema.factions && infoSistema.factions.length === 1) {
-                // Si tiene una facción, ya esta siendo colonizado
-                infoSistema.distanciaOrigen = distanciaOrigen;
-                sistemasColonizando.push(infoSistema);
-                sistemasRecuperados++;
-                comprobarFinCarga();
-            } else if (infoSistema.factions && infoSistema.factions.length > 1) {
-                // Si tiene más facciones es un sistema poblado
-                infoSistema.distanciaOrigen = distanciaOrigen;
-                sistemasAntiguos.push(infoSistema);
-                sistemasRecuperados++;
-                comprobarFinCarga();
-            } else {
-                if (modoLento) {
-                    await recuperarCuerposSistema(nombre, distanciaOrigen);
-                } else {
-                    recuperarCuerposSistema(nombre, distanciaOrigen);
-                }
-            }
-        } else {
+    async function comprobarSistema(sistema, modoLento) {
+        if (sistema.tiene_estaciones_terminadas) {
+            // Si tiene alguna estación terminadas es un sistema poblado
+            sistema.name = sistema.nombre;
+            sistema.distanciaOrigen = sistema.distancia;
+            sistemasAntiguos.push(sistema);
             sistemasRecuperados++;
             comprobarFinCarga();
+        } else if (sistema.tiene_estaciones_construccion) {
+            // Si tiene estaciones en obra y terminadas, es un sistema siendo colonizado por otro jugador
+            sistema.name = sistema.nombre;
+            sistema.distanciaOrigen = sistema.distancia;
+            sistemasColonizando.push(sistema);
+            sistemasRecuperados++;
+            comprobarFinCarga();
+        } else {
+            if (modoLento) {
+                await recuperarCuerposSistema(sistema);
+            } else {
+                recuperarCuerposSistema(sistema);
+            }
         }
 
-        setSistemasRecuperadosLoading(sistemasRecuperados);
     }
 
-    async function recuperarCuerposSistema(nombre, distanciaOrigen) {
+    async function recuperarCuerposSistema(sistema) {
         // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
-        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + nombre), {
+        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + sistema.nombre), {
             method: "GET",
         });
 
         if (response.status >= 200 && response.status < 300) {
             const infoSistema = await response.json();
-            infoSistema.distanciaOrigen = distanciaOrigen;
+            infoSistema.distanciaOrigen = sistema.distancia;
+            infoSistema.name = sistema.nombre;
             sistemasLibres.push(infoSistema);
         }
 
@@ -237,6 +227,13 @@ const SistemaIniciarColonizacion = () => {
                 return;
             }
 
+            let tipoTierra = 0;
+            let terraformacion = 0;
+            let acuatico = 0;
+            let amoniaco = 0;
+            let ricoEnMetal = 0;
+            let altoContenidoMetal = 0;
+
             sistema.bodies.forEach((cuerpo) => {
                 if (cuerpo.type === "Star") {
                     estrellas++;
@@ -246,6 +243,22 @@ const SistemaIniciarColonizacion = () => {
                     }
                 } else {
                     planetasLunas++;
+                    let esTerraformable = cuerpo.terraformingState != null && cuerpo.terraformingState != "Not terraformable";
+                    if (esTerraformable) {
+                        terraformacion++;
+                    }
+
+                    if (cuerpo.subType && cuerpo.subType === "Earth-like world") {
+                        tipoTierra++;
+                    } else if (cuerpo.subType && cuerpo.subType === "Water world") {
+                        acuatico++;
+                    } else if (cuerpo.subType && cuerpo.subType === "Ammonia world") {
+                        amoniaco++;
+                    } else if (cuerpo.subType && cuerpo.subType === "Metal-rich body") {
+                        ricoEnMetal++;
+                    } else if (cuerpo.subType && cuerpo.subType === "High metal content world") {
+                        altoContenidoMetal++;
+                    }
 
                     if (cuerpo.isLandable) {
                         aterrizables++;
@@ -313,6 +326,11 @@ const SistemaIniciarColonizacion = () => {
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
                     <td>{aterrizables}</td>
+
+                    <td>{tipoTierra + terraformacion}</td>
+                    <td>{acuatico + amoniaco}</td>
+                    <td>{ricoEnMetal + altoContenidoMetal}</td>
+
                     <td>{cinturones}</td>
                     <td>{anillos}</td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(cuerpoMasLejano)} sL</td>
@@ -441,7 +459,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12">
                     <b>Sistema: </b>
-                    {nombreSistema}
+                    <Enlace to={"?sistema=" + nombreSistema}>{nombreSistema}</Enlace>
                     <br />
                     <br />
                 </div>
@@ -538,6 +556,11 @@ const SistemaIniciarColonizacion = () => {
                                 <th>Estrellas</th>
                                 <th>Planetas y Satélites</th>
                                 <th>Cuerpos aterrizables</th>
+                                
+                                <th>Tipo Tierra o Terraformable</th>
+                                <th>Acuaticos o Amoniaco</th>
+                                <th>Metalicos</th>
+
                                 <th>Cinturon de asteroides</th>
                                 <th>Anillos</th>
                                 <th>Cuerpo más lejano</th>

@@ -15,6 +15,7 @@ import orbis from "../../imagenes/Orbis.png";
 import megaship from "../../imagenes/Megaship.jpg";
 import PlanetaryPort from "../../imagenes/PlanetaryPort.png";
 import planetaryOutpost from "../../imagenes/PlanetaryOutpost.png";
+import Enlace from "../../elementos/Enlace";
 
 let dominio = "https://stormseekers.twilightparadox.com";
 // if (window.location.hostname === "localhost") {
@@ -575,7 +576,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
 
                 <div className="col-sm-12">
                     <b>Sistema: </b>
-                    {nombreSistema}
+                    <Enlace to={"?sistema=" + nombreSistema}>{nombreSistema}</Enlace>
                     <br />
                     <br />
                 </div>
