@@ -311,6 +311,18 @@ const SistemaIniciarColonizacion = () => {
                 }
             }
 
+
+            // if (cuerpoMasLejano > 10000) {
+            //     cumpleTodosFiltros = false;
+            // }
+            // if (aterrizables < 5) {
+            //     cumpleTodosFiltros = false;
+            // }
+            // if (tipoTierra == 0 && terraformacion == 0 && acuatico == 0 && amoniaco == 0 && altoContenidoMetal == 0) {
+            //     cumpleTodosFiltros = false;
+            // }
+            
+
             if (!cumpleTodosFiltros && cumplenFiltros) {
                 return null;
             }
