@@ -575,7 +575,7 @@ const SistemaIniciarColonizacion = () => {
 
             <div className="row">
                 <div className="col-sm-12">
-                    <h4>Sistemas en proceso de colonizar por jugadores:</h4>
+                    <h4>Sistemas colonizados por jugadores:</h4>
                     <table className={estilos.tablaSistemas + " " + estilos.sistemasVerde}>
                         <thead>
                             <tr>
