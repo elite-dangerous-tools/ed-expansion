@@ -95,21 +95,21 @@ const SistemaIniciarColonizacion = () => {
 
             if (modoLento || indice % 10 === 0) {
                 // En modo lento o cada 10 esperamos
-                await recuperarInfoSistema(sistema, modoLento);
+                await recuperarInfoSistema(sistema, modoLento, indice);
             } else {
-                recuperarInfoSistema(sistema, modoLento);
+                recuperarInfoSistema(sistema, modoLento, indice);
             }
 
             indice++;
         }
     }
 
-    async function recuperarInfoSistema(sistema, modoLento) {
+    async function recuperarInfoSistema(sistema, modoLento, indice) {
         try {
             if (modoLento) {
-                await comprobarSistema(sistema, modoLento);
+                await comprobarSistema(sistema, modoLento, indice);
             } else {
-                comprobarSistema(sistema, modoLento);
+                comprobarSistema(sistema, modoLento, indice);
             }
         } catch (error) {
             sistemasRecuperados++;
@@ -117,7 +117,7 @@ const SistemaIniciarColonizacion = () => {
         }
     }
 
-    async function comprobarSistema(sistema, modoLento) {
+    async function comprobarSistema(sistema, modoLento, indice) {
         if (sistema.tiene_estaciones_terminadas) {
             // Si tiene alguna estación terminadas es un sistema poblado
             sistema.name = sistema.nombre;
@@ -134,15 +134,37 @@ const SistemaIniciarColonizacion = () => {
             comprobarFinCarga();
         } else {
             if (modoLento) {
-                await recuperarCuerposSistema(sistema);
+                await recuperarCuerposSistema(sistema, indice);
             } else {
-                recuperarCuerposSistema(sistema);
+                recuperarCuerposSistema(sistema, indice);
             }
         }
 
     }
 
-    async function recuperarCuerposSistema(sistema) {
+    async function recuperarCuerposSistema(sistema, indice) {
+        
+        try {
+            if (indice % 2 == 0) {
+                return recuperarCuerposSistemaEDSM(sistema);
+            } else {
+                return recuperarCuerposSistemaArdent(sistema);
+            }
+        } catch (error) {
+            return recuperarCuerposSistemaError(sistema, indice)
+        }
+    }
+
+    async function recuperarCuerposSistemaError(sistema, indice) {
+        // Recuperamos a la inversa si ha fallado
+        if (indice % 2 == 1) {
+            return recuperarCuerposSistemaEDSM(sistema);
+        } else {
+            return recuperarCuerposSistemaArdent(sistema);
+        }
+    }
+
+    async function recuperarCuerposSistemaEDSM(sistema) {
         // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
         let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + sistema.nombre), {
             method: "GET",
@@ -152,6 +174,28 @@ const SistemaIniciarColonizacion = () => {
             const infoSistema = await response.json();
             infoSistema.distanciaOrigen = sistema.distancia;
             infoSistema.name = sistema.nombre;
+            sistemasLibres.push(infoSistema);
+        }
+
+        sistemasRecuperados++;
+        comprobarFinCarga();
+
+        setSistemasRecuperadosLoading(sistemasRecuperados);
+    }
+
+    async function recuperarCuerposSistemaArdent(sistema) {
+        // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
+        let response = await fetch(encodeURI("https://api.ardent-insight.com/v2/system/name/" + sistema.nombre + "/bodies"), {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const cuerposSistema = await response.json();
+
+            const infoSistema = {...sistema};
+            infoSistema.distanciaOrigen = sistema.distancia;
+            infoSistema.name = sistema.nombre;
+            infoSistema.bodies = cuerposSistema;
             sistemasLibres.push(infoSistema);
         }
 
@@ -332,7 +376,7 @@ const SistemaIniciarColonizacion = () => {
             }
 
             return (
-                <tr key={sistema.id}>
+                <tr key={sistema.name}>
                     <td>{sistema.name}</td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>{estrellas}</td>
@@ -393,7 +437,7 @@ const SistemaIniciarColonizacion = () => {
 
         return sistemasOrdenados.map((sistema) => {
             return (
-                <tr key={sistema.id}>
+                <tr key={sistema.name}>
                     <td>{sistema.name}</td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
@@ -415,7 +459,7 @@ const SistemaIniciarColonizacion = () => {
 
         return sistemasOrdenados.map((sistema) => {
             return (
-                <tr key={sistema.id}>
+                <tr key={sistema.name}>
                     <td>{sistema.name}</td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
