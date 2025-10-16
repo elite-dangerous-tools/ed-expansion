@@ -83,8 +83,7 @@ const SistemaIniciarColonizacion = () => {
             let sistemasPoblados = sistemasRecuperados.filter(s => s.is_being_colonised !== true && s.is_colonised !== true && s.population > 0);
 
             setSistemasAlcanceColonizados(sistemasColonizados);
-            // setSistemasAlcanceLibres(sistemasLibres);
-            setSistemasAlcanceLibres(sistemasRecuperados);
+            setSistemasAlcanceLibres(sistemasLibres);
             setSistemasAlcancePoblados(sistemasPoblados);
 
             setCargando(false);
