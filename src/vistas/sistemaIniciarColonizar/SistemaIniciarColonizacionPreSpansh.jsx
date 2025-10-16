@@ -10,86 +10,207 @@ const SistemaIniciarColonizacion = () => {
     const isMounted = useRef(false);
     const nombreSistema = useRef(dameBusqueda()).current;
 
+    const [sistemasRecuperadosLoading, setSistemasRecuperadosLoading] = useState(0);
+
     const [cargando, setCargando] = useState(false);
     const [alcance, setAlcance] = useState("0");
     const [anillo, setAnillo] = useState(false);
     const [cinturon, setCinturon] = useState(false);
 
-    const [orden, setOrden] = useState("distance");
+    const [orden, setOrden] = useState("distanciaOrigen");
     const [sentido, setSentido] = useState("ASC");
 
     const [aterrizable, setAterrizable] = useState(false);
+    const [sistemasAlcance, setSistemasAlcance] = useState([]);
 
-    const [sistemasAlcanceLibres, setSistemasAlcanceLibres] = useState([]);
-    const [sistemasAlcanceColonizados, setSistemasAlcanceColonizados] = useState([]);
-    const [sistemasAlcancePoblados, setSistemasAlcancePoblados] = useState([]);
+    const [sistLibres, setSistLibres] = useState([]);
+    const [sistOcupados, setSistOcupados] = useState([]);
+    const [sistPoblados, setSistPoblados] = useState([]);
+
+    let sistemasRecuperados = 0;
+    let sistemasColonizando = [];
+    let sistemasLibres = [];
+    let sistemasAntiguos = [];
 
     const alcancesDisponibles = [
         {
             id: "0",
             valor: 0,
-            texto: ""
+            texto: "",
         },
         {
             id: "1",
-            valor: 5,
-            texto: "5 AL"
+            valor: 15,
+            texto: "15 AL (Por defecto)",
         },
         {
             id: "2",
-            valor: 25,
-            texto: "25 AL (Por defecto)"
+            valor: 30,
+            texto: "30 AL (Más lento)",
         },
         {
             id: "3",
-            valor: 50,
-            texto: "50 AL (Lento)"
+            valor: 60,
+            texto: "60 AL (Muy lento)",
         },
-        // {
-        //     id: "4",
-        //     valor: 75,
-        //     texto: "75 AL (Más lento)"
-        // },
-        // {
-        //     id: "5",
-        //     valor: 100,
-        //     texto: "100 AL (Muy lento)"
-        // }
     ];
 
-    async function recuperarSistemasAlcance(nuevoAlcance) {
-        let radio = alcancesDisponibles.find(fila => fila.id === nuevoAlcance).valor;
+    async function recuperarSistemasAlcance() {
+        sistemasRecuperados = 0;
+        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
         if (radio <= 0) {
             return;
         }
 
         let dominio = "https://stormseekers.twilightparadox.com";
-        if (window.location.hostname === "localhost") {
-            dominio = "http://localhost:5000";
-        }
+        // if (window.location.hostname === 'localhost') {
+        //     dominio = "http://localhost:5000";
+        // }
 
         let urlAlcance = dominio + "/api/sistemas_alcance?distancia=" + radio + "&sistema=" + nombreSistema;
         let response = await fetch(encodeURI(urlAlcance), {
-            method: "GET"
+            method: "GET",
         });
 
         if (response.status >= 200 && response.status < 300) {
-            const sistemasRecuperados = await response.json();
-
-            let sistemasColonizados = sistemasRecuperados.filter(s => s.is_being_colonised === true || s.is_colonised === true);
-
-            let sistemasLibres = sistemasRecuperados.filter(s => s.is_being_colonised !== true && s.is_colonised !== true && s.population === 0);
-
-            let sistemasPoblados = sistemasRecuperados.filter(s => s.is_being_colonised !== true && s.is_colonised !== true && s.population > 0);
-
-            setSistemasAlcanceColonizados(sistemasColonizados);
-            // setSistemasAlcanceLibres(sistemasLibres);
-            setSistemasAlcanceLibres(sistemasRecuperados);
-            setSistemasAlcancePoblados(sistemasPoblados);
-
-            setCargando(false);
+            const sistemasBBDD = await response.json();
+            setSistemasAlcance(sistemasBBDD);
         } else {
             alert("Fallo al recuperar los sistemas de la burbuja: " + response.statusText);
+            setCargando(false);
+        }
+
+    }
+
+    async function recuperarInfoSistemas() {
+        let radio = alcancesDisponibles.find((fila) => fila.id === alcance).valor;
+        if (radio <= 0) {
+            return;
+        }
+
+        let modoLento = radio > 30;
+        let indice = 0;
+        for (const key in sistemasAlcance) {
+            const sistema = sistemasAlcance[key];
+
+            if (modoLento || indice % 10 === 0) {
+                // En modo lento o cada 10 esperamos
+                await recuperarInfoSistema(sistema, modoLento, indice);
+            } else {
+                recuperarInfoSistema(sistema, modoLento, indice);
+            }
+
+            indice++;
+        }
+    }
+
+    async function recuperarInfoSistema(sistema, modoLento, indice) {
+        try {
+            if (modoLento) {
+                await comprobarSistema(sistema, modoLento, indice);
+            } else {
+                comprobarSistema(sistema, modoLento, indice);
+            }
+        } catch (error) {
+            sistemasRecuperados++;
+            comprobarFinCarga();
+        }
+    }
+
+    async function comprobarSistema(sistema, modoLento, indice) {
+        if (sistema.tiene_estaciones_terminadas) {
+            // Si tiene alguna estación terminadas es un sistema poblado
+            sistema.name = sistema.nombre;
+            sistema.distanciaOrigen = sistema.distancia;
+            sistemasAntiguos.push(sistema);
+            sistemasRecuperados++;
+            comprobarFinCarga();
+        } else if (sistema.tiene_estaciones_construccion) {
+            // Si tiene estaciones en obra y terminadas, es un sistema siendo colonizado por otro jugador
+            sistema.name = sistema.nombre;
+            sistema.distanciaOrigen = sistema.distancia;
+            sistemasColonizando.push(sistema);
+            sistemasRecuperados++;
+            comprobarFinCarga();
+        } else {
+            if (modoLento) {
+                await recuperarCuerposSistema(sistema, indice);
+            } else {
+                recuperarCuerposSistema(sistema, indice);
+            }
+        }
+
+    }
+
+    async function recuperarCuerposSistema(sistema, indice) {
+        
+        try {
+            if (indice % 2 == 0) {
+                return recuperarCuerposSistemaEDSM(sistema);
+            } else {
+                return recuperarCuerposSistemaArdent(sistema);
+            }
+        } catch (error) {
+            return recuperarCuerposSistemaError(sistema, indice)
+        }
+    }
+
+    async function recuperarCuerposSistemaError(sistema, indice) {
+        // Recuperamos a la inversa si ha fallado
+        if (indice % 2 == 1) {
+            return recuperarCuerposSistemaEDSM(sistema);
+        } else {
+            return recuperarCuerposSistemaArdent(sistema);
+        }
+    }
+
+    async function recuperarCuerposSistemaEDSM(sistema) {
+        // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
+        let response = await fetch(encodeURI("https://www.edsm.net/api-system-v1/bodies?systemName=" + sistema.nombre), {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const infoSistema = await response.json();
+            infoSistema.distanciaOrigen = sistema.distancia;
+            infoSistema.name = sistema.nombre;
+            sistemasLibres.push(infoSistema);
+        }
+
+        sistemasRecuperados++;
+        comprobarFinCarga();
+
+        setSistemasRecuperadosLoading(sistemasRecuperados);
+    }
+
+    async function recuperarCuerposSistemaArdent(sistema) {
+        // Sistemas como WISE 1405+5534 este fallan al recuperar sin encodeURI
+        let response = await fetch(encodeURI("https://api.ardent-insight.com/v2/system/name/" + sistema.nombre + "/bodies"), {
+            method: "GET",
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            const cuerposSistema = await response.json();
+
+            const infoSistema = {...sistema};
+            infoSistema.distanciaOrigen = sistema.distancia;
+            infoSistema.name = sistema.nombre;
+            infoSistema.bodies = cuerposSistema;
+            sistemasLibres.push(infoSistema);
+        }
+
+        sistemasRecuperados++;
+        comprobarFinCarga();
+
+        setSistemasRecuperadosLoading(sistemasRecuperados);
+    }
+
+    function comprobarFinCarga() {
+        setSistLibres(sistemasLibres);
+        setSistOcupados(sistemasColonizando);
+        setSistPoblados(sistemasAntiguos);
+
+        if (cargando === true && sistemasAlcance.length === sistemasRecuperados) {
             setCargando(false);
         }
     }
@@ -97,13 +218,13 @@ const SistemaIniciarColonizacion = () => {
     function cambiaAlcance(evento) {
         const nuevoAlcance = evento.target.value;
         setAlcance(nuevoAlcance);
-        setSistemasAlcanceLibres([]);
-        setSistemasAlcanceColonizados([]);
-        setSistemasAlcancePoblados([]);
 
         if (nuevoAlcance !== "0") {
             setCargando(true);
-            recuperarSistemasAlcance(nuevoAlcance);
+            setSistLibres([]);
+            setSistOcupados([]);
+            setSistPoblados([]);
+            setSistemasAlcance([]);
         }
     }
 
@@ -135,38 +256,10 @@ const SistemaIniciarColonizacion = () => {
         return pintarSistemasLibres(true);
     }
 
-    function compare(a, b) {
-        let valor1 = sentido === "ASC" ? a[orden] : b[orden];
-        let valor2 = sentido === "ASC" ? b[orden] : a[orden];
-
-        if (isNaN(valor1) || isNaN(valor2)) {
-            // Si alguno no es númerico, ordenamos como texto
-            valor1 = valor1.toLowerCase();
-            valor2 = valor2.toLowerCase();
-        } else {
-            // Es numérico
-            valor1 = parseFloat(valor1);
-            valor2 = parseFloat(valor2);
-        }
-
-        if (valor1 < valor2) {
-            return -1;
-        }
-        if (valor1 > valor2) {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    function ordenarSistemas(sistemas) {
-        return sistemas.sort(compare);
-    }
-
     function pintarSistemasLibres(cumplenFiltros = undefined) {
-        let sistemasOrdenados = ordenarSistemas(sistemasAlcanceLibres);
+        let sistemasOrdenados = ordenarSistemas(sistLibres);
 
-        return sistemasOrdenados.map(sistema => {
+        return sistemasOrdenados.map((sistema) => {
             let estrellas = 0;
             let planetasLunas = 0;
             let cinturones = 0;
@@ -185,7 +278,7 @@ const SistemaIniciarColonizacion = () => {
             let ricoEnMetal = 0;
             let altoContenidoMetal = 0;
 
-            sistema.bodies.forEach(cuerpo => {
+            sistema.bodies.forEach((cuerpo) => {
                 if (cuerpo.type === "Star") {
                     estrellas++;
 
@@ -194,20 +287,20 @@ const SistemaIniciarColonizacion = () => {
                     }
                 } else {
                     planetasLunas++;
-                    let esTerraformable = cuerpo.terraforming_state != null && cuerpo.terraforming_state != "Not terraformable";
+                    let esTerraformable = cuerpo.terraformingState != null && cuerpo.terraformingState != "Not terraformable";
                     if (esTerraformable) {
                         terraformacion++;
                     }
 
-                    if (cuerpo.subtype && cuerpo.subtype === "Earth-like world") {
+                    if (cuerpo.subType && cuerpo.subType === "Earth-like world") {
                         tipoTierra++;
-                    } else if (cuerpo.subtype && cuerpo.subtype === "Water world") {
+                    } else if (cuerpo.subType && cuerpo.subType === "Water world") {
                         acuatico++;
-                    } else if (cuerpo.subtype && cuerpo.subtype === "Ammonia world") {
+                    } else if (cuerpo.subType && cuerpo.subType === "Ammonia world") {
                         amoniaco++;
-                    } else if (cuerpo.subtype && cuerpo.subtype === "Metal-rich body") {
+                    } else if (cuerpo.subType && cuerpo.subType === "Metal-rich body") {
                         ricoEnMetal++;
-                    } else if (cuerpo.subtype && cuerpo.subtype === "High metal content world") {
+                    } else if (cuerpo.subType && cuerpo.subType === "High metal content world") {
                         altoContenidoMetal++;
                     }
 
@@ -220,8 +313,8 @@ const SistemaIniciarColonizacion = () => {
                     anillos += cuerpo.rings.length;
                 }
 
-                if (cuerpo.distance_to_arrival > cuerpoMasLejano) {
-                    cuerpoMasLejano = cuerpo.distance_to_arrival;
+                if (cuerpo.distanceToArrival > cuerpoMasLejano) {
+                    cuerpoMasLejano = cuerpo.distanceToArrival;
                 }
             });
 
@@ -262,15 +355,17 @@ const SistemaIniciarColonizacion = () => {
                 }
             }
 
-            // // if (cuerpoMasLejano > 10000) {
-            // //     cumpleTodosFiltros = false;
-            // // }
-            // // if (aterrizables < 5) {
-            // //     cumpleTodosFiltros = false;
-            // // }
-            // // if (tipoTierra == 0 && terraformacion == 0 && acuatico == 0 && amoniaco == 0 && altoContenidoMetal == 0) {
-            // //     cumpleTodosFiltros = false;
-            // // }
+
+            // if (cuerpoMasLejano > 10000) {
+            //     cumpleTodosFiltros = false;
+            // }
+            // if (aterrizables < 5) {
+            //     cumpleTodosFiltros = false;
+            // }
+            // if (tipoTierra == 0 && terraformacion == 0 && acuatico == 0 && amoniaco == 0 && altoContenidoMetal == 0) {
+            //     cumpleTodosFiltros = false;
+            // }
+            
 
             if (!cumpleTodosFiltros && cumplenFiltros) {
                 return null;
@@ -283,18 +378,18 @@ const SistemaIniciarColonizacion = () => {
             return (
                 <tr key={sistema.name}>
                     <td>{sistema.name}</td>
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
-                    {/* <td>{aterrizables}</td> */}
+                    <td>{aterrizables}</td>
 
                     <td>{tipoTierra + terraformacion}</td>
                     <td>{acuatico + amoniaco}</td>
                     <td>{ricoEnMetal + altoContenidoMetal}</td>
 
-                    {/* <td>{cinturones}</td> */}
-                    {/* <td>{anillos}</td> */}
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format( cuerpoMasLejano.toFixed(0) )} sL</td>
+                    <td>{cinturones}</td>
+                    <td>{anillos}</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(cuerpoMasLejano)} sL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -309,14 +404,42 @@ const SistemaIniciarColonizacion = () => {
         });
     }
 
-    function pintarSistemasColonizando() {
-        let sistemasOrdenados = ordenarSistemas(sistemasAlcanceColonizados);
+    function compare(a, b) {
+        let valor1 = sentido === "ASC" ? a[orden] : b[orden];
+        let valor2 = sentido === "ASC" ? b[orden] : a[orden];
 
-        return sistemasOrdenados.map(sistema => {
+        if (isNaN(valor1) || isNaN(valor2)) {
+            // Si alguno no es númerico, ordenamos como texto
+            valor1 = valor1.toLowerCase();
+            valor2 = valor2.toLowerCase();
+        } else {
+            // Es numérico
+            valor1 = parseFloat(valor1);
+            valor2 = parseFloat(valor2);
+        }
+
+        if (valor1 < valor2) {
+            return -1;
+        }
+        if (valor1 > valor2) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    function ordenarSistemas(sistemas) {
+        return sistemas.sort(compare);
+    }
+
+    function pintarSistemasColonizando() {
+        let sistemasOrdenados = ordenarSistemas(sistOcupados);
+
+        return sistemasOrdenados.map((sistema) => {
             return (
                 <tr key={sistema.name}>
                     <td>{sistema.name}</td>
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -332,13 +455,13 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasPoblados() {
-        let sistemasOrdenados = ordenarSistemas(sistemasAlcancePoblados);
+        let sistemasOrdenados = ordenarSistemas(sistPoblados);
 
-        return sistemasOrdenados.map(sistema => {
+        return sistemasOrdenados.map((sistema) => {
             return (
                 <tr key={sistema.name}>
                     <td>{sistema.name}</td>
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distanciaOrigen)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
                             Inara
@@ -364,11 +487,30 @@ const SistemaIniciarColonizacion = () => {
         }
     }, []);
 
+    useEffect(() => {
+        // hemos recibido sistemas validos
+
+        if (sistemasAlcance.length > 0) {
+            recuperarInfoSistemas();
+        }
+    }, [sistemasAlcance]);
+
+    useEffect(() => {
+        // hemos cambiado el alcance
+
+        recuperarSistemasAlcance();
+    }, [alcance]);
+
     return (
         <>
             <div className="row">
                 <div className="col-sm-12">
                     <Progreso visible={cargando} />
+                    {cargando === true && sistemasAlcance.length > 0 ? (
+                        <div className={estilos.contador}>
+                            {sistemasRecuperadosLoading} de {sistemasAlcance.length}
+                        </div>
+                    ) : null}
                 </div>
 
                 <div className="col-sm-12">
@@ -386,7 +528,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="aterrizable">Debe tener cuerpos aterrizables: </label>
-                    <select id="aterrizable" onChange={cambiaAterrizable} value={aterrizable} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select id="aterrizable" onChange={cambiaAterrizable} value={aterrizable} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
@@ -396,7 +538,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="anillo">Debe tener algún anillo: </label>
-                    <select name="anillo" onChange={cambiaAnillo} value={anillo} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select name="anillo" onChange={cambiaAnillo} value={anillo} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
@@ -406,7 +548,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="cinturon">Debe tener cinturón de asteroides: </label>
-                    <select id="cinturon" onChange={cambiaCinturon} value={cinturon} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select id="cinturon" onChange={cambiaCinturon} value={cinturon} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
@@ -423,7 +565,7 @@ const SistemaIniciarColonizacion = () => {
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="faccion">Distancia máxima: </label>
                     <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
-                        {alcancesDisponibles.map(distancia => {
+                        {alcancesDisponibles.map((distancia) => {
                             return (
                                 <option key={distancia.id} value={distancia.id}>
                                     {distancia.texto}
@@ -444,7 +586,7 @@ const SistemaIniciarColonizacion = () => {
                     <label htmlFor="columna">Columna: </label>
                     <select id="columna" onChange={cambiaOrden} value={orden} disabled={cargando} className={estilos.selectAlcance}>
                         <option value="name">Nombre</option>
-                        <option value="distance">Distancia Origen</option>
+                        <option value="distanciaOrigen">Distancia Origen</option>
                     </select>
                     &nbsp;&nbsp;
                 </div>
@@ -469,14 +611,14 @@ const SistemaIniciarColonizacion = () => {
                                 <th>Distancia Origen</th>
                                 <th>Estrellas</th>
                                 <th>Planetas y Satélites</th>
-                                {/* <th>Cuerpos aterrizables</th> */}
-
+                                <th>Cuerpos aterrizables</th>
+                                
                                 <th>Tipo Tierra o Terraformable</th>
                                 <th>Acuaticos o Amoniaco</th>
                                 <th>Metalicos</th>
 
-                                {/* <th>Cinturon de asteroides</th> */}
-                                {/* <th>Anillos</th> */}
+                                <th>Cinturon de asteroides</th>
+                                <th>Anillos</th>
                                 <th>Cuerpo más lejano</th>
                                 <th>Enlaces</th>
                             </tr>
