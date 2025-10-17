@@ -64,9 +64,9 @@ const SistemaIniciarColonizacion = () => {
         }
 
         let dominio = "https://stormseekers.twilightparadox.com";
-        if (window.location.hostname === "localhost") {
-            dominio = "http://localhost:5000";
-        }
+        // if (window.location.hostname === "localhost") {
+        //     dominio = "http://localhost:5000";
+        // }
 
         let urlAlcance = dominio + "/api/sistemas_alcance?distancia=" + radio + "&sistema=" + nombreSistema;
         let response = await fetch(encodeURI(urlAlcance), {

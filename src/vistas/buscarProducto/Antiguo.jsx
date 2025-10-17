@@ -12,80 +12,75 @@ import odyssey from "../../imagenes/OdysseySettlement.png";
 import coriolis from "../../imagenes/Coriolis.png";
 import ocellus from "../../imagenes/Ocellus.png";
 import orbis from "../../imagenes/Orbis.png";
-import megaship from "../../imagenes/Megaship.png";
-import carrier from "../../imagenes/Carrier.png";
+import megaship from "../../imagenes/Megaship.jpg";
 import PlanetaryPort from "../../imagenes/PlanetaryPort.png";
 import planetaryOutpost from "../../imagenes/PlanetaryOutpost.png";
 import Enlace from "../../elementos/Enlace";
 
 let dominio = "https://stormseekers.twilightparadox.com";
-// if (window.location.hostname === "localhost") {
-//     dominio = "http://localhost:5000";
-// }
+if (window.location.hostname === "localhost") {
+    dominio = "http://localhost:5000";
+}
 
 const idiomasDisponibles = [
     {
         id: "es",
-        texto: "Español"
+        texto: "Español",
     },
     {
         id: "en",
-        texto: "English"
-    }
+        texto: "English",
+    },
 ];
 
 const alcancesDisponibles = [
     {
-        id: 0,
-        texto: ""
-    },
-    {
-        id: 5,
-        texto: "5 AL"
-    },
-    {
         id: 15,
-        texto: "15 AL"
+        texto: "15 AL",
     },
     {
         id: 25,
-        texto: "25 AL"
+        texto: "25 AL",
     },
     {
         id: 50,
-        texto: "50 AL"
+        texto: "50 AL",
     },
     {
         id: 100,
-        texto: "100 AL (Lento)"
+        texto: "100 AL (Lento)",
     },
     {
         id: 150,
-        texto: "150 AL (Más lento)"
-    }
+        texto: "150 AL (Más lento)",
+    },
 ];
 
 const suministrosMinimos = [
     {
         id: 10,
-        texto: "10"
+        texto: "10",
     },
     {
         id: 100,
-        texto: "100"
+        texto: "100",
+    },
+    {
+        id: 500,
+        texto: "500",
     },
     {
         id: 1000,
-        texto: "1000"
+        texto: "1000",
+    },
+    {
+        id: 5000,
+        texto: "5000",
     },
     {
         id: 10000,
-        texto: "10000"
+        texto: "10000",
     },
-    {
-        id: 100000,
-        texto: "100000"
-    }
 ];
 
 const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
@@ -98,8 +93,8 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     const [nombreSistema, setNombreSistema] = useState(parametrosUrl.buscarProducto || "Sol");
     const [alcance, setAlcance] = useState(parametrosUrl.alcance ? parseInt(parametrosUrl.alcance) : alcancesDisponibles[0].id);
     const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-    const [plataforma, setPlataforma] = useState(parametrosUrl.plataforma || "");
-    const [planetaria, setPlanetaria] = useState(parametrosUrl.planetaria || "");
+    const [plataforma, setPlataforma] = useState(parametrosUrl.plataforma || "M");
+    const [planetaria, setPlanetaria] = useState(parametrosUrl.planetaria || "1");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
     const [orden, setOrden] = useState(parametrosUrl.orden || "distanciasistema");
     const [suministroMinimo, setSuministroMinimo] = useState(parametrosUrl.suministroMinimo ? parseInt(parametrosUrl.suministroMinimo) : 100);
@@ -116,9 +111,9 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     }, []);
 
     useEffect(() => {
-        // hemos cambiado el alcance, la plataforma o el producto
+        // hemos cambiado el alcance o el producto
         recuperarProductosEstaciones();
-    }, [alcance, plataforma, planetaria]);
+    }, [alcance, productosSeleccionados]);
 
     useEffect(() => {
         // hemos cambiado el alcance o el producto o el idioma
@@ -130,8 +125,8 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
 
         if (listaProdInicial.length > 0 && productosSeleccionados.length === 0 && listaProductos.length > 0) {
             let nuevosProductos = [];
-            listaProdInicial.forEach(fila => {
-                const articulo = listaProductos.find(item => item.id === fila.value);
+            listaProdInicial.forEach((fila) => {
+                const articulo = listaProductos.find((item) => item.id === fila.value);
 
                 let nombreProducto = articulo.id;
                 if (idioma === "es") {
@@ -189,7 +184,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         params.set("planetaria", planetaria);
         params.set("suministroMinimo", suministroMinimo);
 
-        const valoresProductos = productosSeleccionados.map(item => item.value);
+        const valoresProductos = productosSeleccionados.map((item) => item.value);
         params.set("productos", valoresProductos);
 
         // Actualizar la URL sin recargar la página
@@ -200,7 +195,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     async function recuperarListaProductos() {
         let urlProductos = dominio + "/api/productos";
         let response = await fetch(encodeURI(urlProductos), {
-            method: "GET"
+            method: "GET",
         });
 
         if (response.status >= 200 && response.status < 300) {
@@ -217,11 +212,16 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             return;
         }
 
+        if (productosSeleccionados.length === 0) {
+            return;
+        }
+
+        const valoresProductos = productosSeleccionados.map((item) => item.value);
+
         setCargando(true);
-        let urlAlcance =
-            dominio + "/api/estaciones?distancia=" + alcance + "&sistema=" + nombreSistema + "&plataforma=" + plataforma + "&planetaria=" + planetaria;
+        let urlAlcance = dominio + "/api/estaciones_producto?distancia=" + alcance + "&sistema=" + nombreSistema + "&productos=" + valoresProductos;
         let response = await fetch(encodeURI(urlAlcance), {
-            method: "GET"
+            method: "GET",
         });
 
         if (response.status >= 200 && response.status < 300) {
@@ -280,25 +280,19 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 valor1 = parseFloat(b.suministroTotal);
                 valor2 = parseFloat(a.suministroTotal);
 
-                break;
-            case "distanciasistema":
-                // Orden ascendente
-                valor1 = parseFloat(a.distance);
-                valor2 = parseFloat(b.distance);
-
                 if (valor1 === valor2) {
-                    valor1 = parseFloat(a.distance_to_arrival);
-                    valor2 = parseFloat(b.distance_to_arrival);
                 }
 
                 break;
-
-            case "nombresistema":
+            case "distanciasistema":
             default:
                 // Orden ascendente
+                valor1 = parseFloat(a.distanciasistema);
+                valor2 = parseFloat(b.distanciasistema);
+
                 if (valor1 === valor2) {
-                    valor1 = a.name;
-                    valor2 = b.name;
+                    valor1 = parseFloat(a.distanciaestacion);
+                    valor2 = parseFloat(b.distanciaestacion);
                 }
 
                 break;
@@ -328,8 +322,8 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     }
 
     function mostrarProductosSeleccionados() {
-        const listaProdSeleccionados = productosSeleccionados.map(fila => {
-            const articulo = listaProductos.find(item => item.id === fila.value);
+        const listaProdSeleccionados = productosSeleccionados.map((fila) => {
+            const articulo = listaProductos.find((item) => item.id === fila.value);
 
             let nombreProducto = articulo.id;
             if (idioma === "es") {
@@ -353,31 +347,40 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     }
 
     function filtrarEstacionesProducto(fila) {
-        if (fila.name.includes("Trailblazer")) {
+        if (fila.suministro < suministroMinimo) {
+            return null;
+        }
+
+        if (fila.estacion.includes("Trailblazer")) {
             // Los Trailblazer son como meganaves
-            fila.type = "Mega ship";
+            fila.tipo = "Mega ship";
         }
 
-        if (productosSeleccionados.length === 0) {
-            // Si no hay productos seleccionados, devolvemos todas las filas
-            return fila;
-        }
+        // Filtro de plataforma
+        if (plataforma === "L") {
+            switch (fila.tipo) {
+                case "Outpost":
+                    // case "Planetary Outpost":
+                    // case "Odyssey Settlement": // Alguno podría tener plataforma grande
+                    return null;
 
-        const mercado = fila.market.filter(productoA => {
-            if (productoA.supply < suministroMinimo) {
-                return false;
+                default:
+                    break;
             }
-
-            return productosSeleccionados.some(productoB => {
-                return productoA.commodity === productoB.value;
-            });
-        });
-
-        if (mercado.length === 0) {
-            return undefined;
         }
 
-        fila.productosFiltrados = mercado;
+        // Filtro de planeta
+        if (planetaria === "0") {
+            switch (fila.tipo) {
+                case "Planetary Outpost":
+                case "Planetary Port":
+                case "Odyssey Settlement":
+                    return null;
+
+                default:
+                    break;
+            }
+        }
 
         return fila;
     }
@@ -399,22 +402,22 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 return "Base de Asteroide";
 
             case "Odyssey Settlement":
-                return "Asentamiento de superficie";
+                break;
 
             case "Planetary Port":
-                return "Puerto Planetario";
+                return "Base Planetaria";
 
             case "Planetary Outpost":
-                return "Puerto de superficie";
+                break;
 
             case "Ocellus Starport":
-                return "Estación Ocellus";
+                break;
 
             case "Orbis Starport":
-                return "Estación Orbis";
+                break;
 
             case "Mega ship":
-                return "Mega Nave";
+                break;
 
             default:
                 break;
@@ -423,127 +426,114 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         return nombreTipo;
     }
 
+    function agruparEstacionesProductos(filas) {
+        const estacionesAgrupadas = [];
+
+        let filaActual = undefined;
+        filas.forEach((fila) => {
+            let mismoSistema = filaActual && filaActual.sistema === fila.sistema;
+            let mismaEstacionYSistema = filaActual && mismoSistema && filaActual.estacion === fila.estacion;
+
+            if (!mismaEstacionYSistema) {
+                if (filaActual !== undefined) {
+                    estacionesAgrupadas.push(filaActual);
+                }
+
+                filaActual = { ...fila };
+                filaActual.suministroTotal = 0;
+                filaActual.suministro = [];
+                filaActual.producto = [];
+                filaActual.precio = [];
+            }
+
+            let nombreProducto = fila.producto;
+            const productoFila = listaProductos.find((prod) => prod.id === fila.producto);
+            if (productoFila) {
+                if (idioma === "es") {
+                    nombreProducto = productoFila.nombre;
+                } else if (idioma === "en") {
+                    nombreProducto = productoFila.id;
+                }
+            }
+
+            filaActual.suministroTotal += fila.suministro;
+            filaActual.suministro.push(<div>{formateaNumero(fila.suministro, idioma)}</div>);
+            filaActual.producto.push(<div>{nombreProducto}</div>);
+            filaActual.precio.push(<div>{formateaNumero(fila.precio, idioma)}</div>);
+        });
+
+        if (filaActual !== undefined) {
+            estacionesAgrupadas.push(filaActual);
+        }
+        return estacionesAgrupadas;
+    }
+
     function mostrarEstacionesProducto() {
         const estacionesProductoFiltradas = estacionesProducto.filter(filtrarEstacionesProducto);
-        const estacionesConProductosOrdenadas = estacionesProductoFiltradas.sort(compararEstaciones);
+        const estacionesAgrupadasPorProducto = agruparEstacionesProductos(estacionesProductoFiltradas);
+        const estacionesConProductosOrdenadas = estacionesAgrupadasPorProducto.sort(compararEstaciones);
 
         let ultimaFilaVisualizada = null;
-        return estacionesConProductosOrdenadas.map(fila => {
-            let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.system_id64 === fila.system_id64;
-            // let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.id === fila.id;
+        return estacionesConProductosOrdenadas.map((fila) => {
+            let mismoSistema = ultimaFilaVisualizada && ultimaFilaVisualizada.sistema === fila.sistema;
+            // let mismaEstacion = ultimaFilaVisualizada && mismoSistema && ultimaFilaVisualizada.estacion === fila.estacion;
 
             let imagenEstacion = "";
-            switch (fila.type) {
-                case "Settlement":
-                    imagenEstacion = odyssey;
-                    break;
-
-                case "Asteroid base":
-                    imagenEstacion = asteroid;
-                    break;
-
-                case "Coriolis Starport":
-                    imagenEstacion = coriolis;
-                    break;
-
-                case "Outpost":
+            switch (fila.tipo) {
+                case "Outpost": // Medio
                     imagenEstacion = outpost;
                     break;
 
-                case "Ocellus Starport":
-                    imagenEstacion = ocellus;
+                case "Asteroid base": // Grande
+                    imagenEstacion = asteroid;
                     break;
 
-                case "Orbis Starport":
-                    imagenEstacion = orbis;
+                case "Odyssey Settlement": // ???
+                    imagenEstacion = odyssey;
                     break;
 
-                case "Planetary Outpost":
-                    imagenEstacion = planetaryOutpost;
+                case "Coriolis Starport": // Grande
+                    imagenEstacion = coriolis;
                     break;
 
-                case "Planetary Port":
+                case "Planetary Port": // Grande??
                     imagenEstacion = PlanetaryPort;
                     break;
 
-                case "Mega ship":
-                    imagenEstacion = megaship;
+                case "Planetary Outpost": // Grande??
+                    imagenEstacion = planetaryOutpost;
                     break;
 
-                case "Drake-Class Carrier":
-                case "Javelin-Class Carrier":
-                case "Victory-Class Carrier":
-                case "Fortune-Class Carrier":
-                case "Nautilus-Class Carrier":
-                    imagenEstacion = carrier;
+                case "Ocellus Starport": // Grande
+                    imagenEstacion = ocellus;
+                    break;
+
+                case "Orbis Starport": // Grande
+                    imagenEstacion = orbis;
+                    break;
+
+                case "Mega ship": // Grande
+                    imagenEstacion = megaship;
                     break;
 
                 default:
                     break;
             }
 
-            let productos = [];
-            let suministros = [];
-            let precios = [];
-
-            if (fila.productosFiltrados && fila.productosFiltrados.length > 0) {
-                fila.productosFiltrados.forEach(productoFiltrado => {
-                    let nombreProducto = productoFiltrado.commodity;
-                    const productoFila = listaProductos.find(prod => prod.id === nombreProducto);
-                    if (productoFila) {
-                        if (idioma === "es") {
-                            nombreProducto = productoFila.nombre;
-                        } else if (idioma === "en") {
-                            nombreProducto = productoFila.id;
-                        }
-                    }
-
-                    // filaActual.suministroTotal += fila.supply;
-                    suministros.push(<div key={productoFiltrado.commodity}>{formateaNumero(productoFiltrado.supply, idioma)}</div>);
-                    productos.push(<div key={productoFiltrado.commodity}>{nombreProducto}</div>);
-                    precios.push(<div key={productoFiltrado.commodity}>{formateaNumero(productoFiltrado.sell_price, idioma)}</div>);
-                });
-            }
-
-            // buy_price
-            // category
-            // commodity
-            // demand
-            // sell_price
-            // supply
-
             ultimaFilaVisualizada = fila;
             return (
-                <tr key={fila.id}>
-                    <td>
-                        <b>{mismoSistema ? null : fila.system_name}</b>
-                    </td>
-                    <td className={estilos.nowrap}>{mismoSistema ? null : fila.distance.toFixed(0) + " AL"}</td>
+                <tr key={fila.sistema + "-" + fila.estacion}>
+                    <td>{<img className={estilos.imagenEstacion} src={imagenEstacion} />}</td>
+                    <td>{fila.distanciaestacion + " sl"}</td>
+                    <td>{fila.estacion}</td>
+                    <td>{tipoEstacion(fila.tipo)}</td>
 
-                    <td>
-                        <div className={estilos.textoCentrado}>{<img className={estilos.imagenEstacion} src={imagenEstacion} />}</div>
-                        <div className={estilos.textoCentrado}>{tipoEstacion(fila.type)}</div>
-                    </td>
-                    <td className={estilos.nowrap}>{fila.distance_to_arrival.toFixed(0) + " sl"}</td>
-                    <td>
-                        {fila.carrier_name ? (
-                            <b>
-                                {fila.carrier_name} ({fila.name})
-                            </b>
-                        ) : (
-                            <b>{fila.name}</b>
-                        )}
+                    <td>{mismoSistema ? null : fila.distanciasistema.toFixed(2) + " AL"}</td>
+                    <td>{mismoSistema ? null : fila.sistema}</td>
 
-                        <small>
-                            <div>{fila.large_pads} Plataformas Grandes</div>
-                            <div>{fila.medium_pads} Plataformas Medianas</div>
-                            <div>{fila.small_pads} Plataformas Pequeñas</div>
-                        </small>
-                    </td>
-
-                    <td>{productos}</td>
-                    <td>{suministros}</td>
-                    <td>{precios}</td>
+                    <td>{fila.producto}</td>
+                    <td>{fila.suministro}</td>
+                    <td>{fila.precio}</td>
                 </tr>
             );
         });
@@ -572,23 +562,13 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 <div className="col-sm-6 col-md-3">
                     <label htmlFor="idioma">Idioma (de productos y números): </label>
                     <select id="idioma" onChange={cambiaIdioma} value={idioma} disabled={cargando} className={estilos.selectAlcance}>
-                        {idiomasDisponibles.map(idioma => {
+                        {idiomasDisponibles.map((idioma) => {
                             return (
                                 <option key={idioma.id} value={idioma.id}>
                                     {idioma.texto}
                                 </option>
                             );
                         })}
-                    </select>
-                    &nbsp;&nbsp;
-                </div>
-
-                <div className="col-sm-12 col-md-3">
-                    <label htmlFor="columna">Orden: </label>
-                    <select id="columna" onChange={cambiaOrden} value={orden} disabled={cargando} className={estilos.selectAlcance}>
-                        <option value="distanciasistema">Distancia Sistema</option>
-                        <option value="nombresistema">Nombre Sistema</option>
-                        <option disabled value="suministro">Suministro Total</option>
                     </select>
                     &nbsp;&nbsp;
                 </div>
@@ -602,7 +582,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                         disabled={cargando}
                         className={estilos.selectAlcance}
                     >
-                        {suministrosMinimos.map(filaSuministroMinimo => {
+                        {suministrosMinimos.map((filaSuministroMinimo) => {
                             return (
                                 <option key={filaSuministroMinimo.id} value={filaSuministroMinimo.id}>
                                     {formateaNumero(filaSuministroMinimo.id, idioma)}
@@ -613,8 +593,60 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     &nbsp;&nbsp;
                 </div>
 
-                <div className="col-sm-12 col-md-8 col-md-offset-2">
+                <div className="col-sm-6 col-md-3">
+                    <label htmlFor="plataforma">Plataforma más grande: </label>
+                    <select id="plataforma" onChange={cambiaPlataforma} value={plataforma} disabled={cargando} className={estilos.selectPlataforma}>
+                        <option value="M">Mediana</option>
+                        <option value="L">Grande</option>
+                    </select>
                     &nbsp;&nbsp;
+                </div>
+
+                <div className="col-sm-6 col-md-3">
+                    <label htmlFor="planetaria">Usar estaciones planetarias: </label>
+                    <select id="planetaria" onChange={cambiaPlanetaria} value={planetaria} disabled={cargando} className={estilos.selectPlataforma}>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Orden:</h4>
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                    <label htmlFor="columna">Columna: </label>
+                    <select id="columna" onChange={cambiaOrden} value={orden} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value="distanciasistema">Distancia Sistema</option>
+                        <option value="suministro">Suministro Total</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Búsqueda:</h4>
+                </div>
+
+                <div className="col-sm-12 col-md-3">
+                    <label htmlFor="faccion">Distancia máxima: </label>
+                    <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
+                        {alcancesDisponibles.map((distancia) => {
+                            return (
+                                <option key={distancia.id} value={distancia.id}>
+                                    {distancia.texto}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+            
+                <div className="col-sm-12 col-md-8">
                     <label htmlFor="producto">Productos: </label>
                     <Select
                         value={mostrarProductosSeleccionados()}
@@ -629,102 +661,50 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                         classNamePrefix="select"
                         styles={{
                             option: (baseStyles, state) => {
+
                                 switch (state.data.tipo) {
-                                    case "export":
+                                    case 'export':
                                         return {
                                             ...baseStyles,
                                             color: "green",
                                             fontWeight: "bold"
-                                        };
-
-                                    case "rare":
-                                        return {
-                                            ...baseStyles,
-                                            color: "orange",
-                                            fontWeight: "bold"
-                                        };
-
-                                    case "prohibited":
+                                        }
+                                
+                                    case 'prohibited':
                                         return {
                                             ...baseStyles,
                                             color: "red",
                                             fontWeight: "bold"
-                                        };
+                                        }
                                 }
 
                                 return {
                                     ...baseStyles
-                                };
+                                }
                             },
                             multiValueLabel: (baseStyles, state) => {
                                 switch (state.data.tipo) {
-                                    case "export":
+                                    case 'export':
                                         return {
                                             ...baseStyles,
                                             color: "green",
                                             fontWeight: "bold"
-                                        };
-
-                                    case "rare":
-                                        return {
-                                            ...baseStyles,
-                                            color: "orange",
-                                            fontWeight: "bold"
-                                        };
-
-                                    case "prohibited":
+                                        }
+                                
+                                    case 'prohibited':
                                         return {
                                             ...baseStyles,
                                             color: "red",
                                             fontWeight: "bold"
-                                        };
+                                        }
                                 }
 
                                 return {
                                     ...baseStyles
-                                };
+                                }
                             }
                         }}
                     />
-                </div>
-            </div>
-
-            <div className="row">
-                <div className="col-sm-12">
-                    <h4>Búsqueda:</h4>
-                </div>
-
-                <div className="col-sm-12 col-md-3">
-                    <label htmlFor="faccion">Distancia máxima: </label>
-                    <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
-                        {alcancesDisponibles.map(distancia => {
-                            return (
-                                <option key={distancia.id} value={distancia.id}>
-                                    {distancia.texto}
-                                </option>
-                            );
-                        })}
-                    </select>
-                    &nbsp;&nbsp;
-                </div>
-
-                <div className="col-sm-6 col-md-3">
-                    <label htmlFor="plataforma">Plataformas grandes: </label>
-                    <select id="plataforma" onChange={cambiaPlataforma} value={plataforma} disabled={cargando} className={estilos.selectPlataforma}>
-                        <option value=""></option>
-                        <option value="G">Sí</option>
-                        <option value="M">No</option>
-                    </select>
-                    &nbsp;&nbsp;
-                </div>
-
-                <div className="col-sm-6 col-md-3">
-                    <label htmlFor="planetaria">Estación planetaria: </label>
-                    <select id="planetaria" onChange={cambiaPlanetaria} value={planetaria} disabled={cargando} className={estilos.selectPlataforma}>
-                        <option value=""></option>
-                        <option value="1">Sí</option>
-                        <option value="0">No</option>
-                    </select>
                     &nbsp;&nbsp;
                 </div>
             </div>
@@ -735,14 +715,17 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
-                                <th>Sistema</th>
-                                <th width={50}>Distancia sistema</th>
-
-                                <th>Tipo</th>
+                                <th></th>
                                 <th width={50}>Distancia estación</th>
                                 <th>Estación</th>
+                                <th>Tipo</th>
 
-                                <th width={175}>Producto</th>
+                                <th width={50}>Distancia sistema</th>
+                                <th>Sistema</th>
+
+                                <th width={175}>
+                                    Producto
+                                </th>
                                 <th>Suministro</th>
                                 <th>Precio</th>
                             </tr>

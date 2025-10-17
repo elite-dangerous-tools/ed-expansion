@@ -14,13 +14,13 @@
     width: 100%;
 }
 
-:local(.tablaSistemas) td {
-    /* text-wrap-mode: nowrap; */
-}
-
 :local(.tablaProductos) {
     max-width: 33vw;
     margin: auto;
+}
+
+:local(.nowrap) {
+    text-wrap-mode: nowrap;
 }
 
 @media screen and (max-width: 1024px) {
@@ -69,6 +69,7 @@
     color: blue;
 }
 
+:local(.textoCentrado),
 :local(.contador) {
     text-align: center;
 }
