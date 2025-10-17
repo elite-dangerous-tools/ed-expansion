@@ -32,8 +32,8 @@ const SistemaIniciarColonizacion = () => {
         },
         {
             id: "1",
-            valor: 5,
-            texto: "5 AL"
+            valor: 15,
+            texto: "15 AL"
         },
         {
             id: "2",
@@ -42,8 +42,8 @@ const SistemaIniciarColonizacion = () => {
         },
         {
             id: "3",
-            valor: 50,
-            texto: "50 AL (Lento)"
+            valor: 45,
+            texto: "45 AL (Lento)"
         },
         // {
         //     id: "4",
@@ -281,7 +281,11 @@ const SistemaIniciarColonizacion = () => {
 
             return (
                 <tr key={sistema.name}>
-                    <td>{sistema.name}</td>
+                    <td>
+                        <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
+                            {sistema.name}
+                        </a>
+                    </td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                     <td>{estrellas}</td>
                     <td>{planetasLunas}</td>
@@ -294,15 +298,6 @@ const SistemaIniciarColonizacion = () => {
                     {/* <td>{cinturones}</td> */}
                     {/* <td>{anillos}</td> */}
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format( cuerpoMasLejano.toFixed(0) )} sL</td>
-                    <td>
-                        <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            Inara
-                        </a>
-                        &nbsp;&nbsp;
-                        <a target="_blank" href={"https://www.edsm.net/en/system/id/" + sistema.id + "/name/" + sistema.name}>
-                            EDSM
-                        </a>
-                    </td>
                 </tr>
             );
         });
@@ -314,17 +309,12 @@ const SistemaIniciarColonizacion = () => {
         return sistemasOrdenados.map(sistema => {
             return (
                 <tr key={sistema.name}>
-                    <td>{sistema.name}</td>
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            Inara
-                        </a>
-                        &nbsp;&nbsp;
-                        <a target="_blank" href={"https://www.edsm.net/en/system/id/" + sistema.id + "/name/" + sistema.name}>
-                            EDSM
+                            {sistema.name}
                         </a>
                     </td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                 </tr>
             );
         });
@@ -336,17 +326,12 @@ const SistemaIniciarColonizacion = () => {
         return sistemasOrdenados.map(sistema => {
             return (
                 <tr key={sistema.name}>
-                    <td>{sistema.name}</td>
-                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            Inara
-                        </a>
-                        &nbsp;&nbsp;
-                        <a target="_blank" href={"https://www.edsm.net/en/system/id/" + sistema.id + "/name/" + sistema.name}>
-                            EDSM
+                            {sistema.name}
                         </a>
                     </td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                 </tr>
             );
         });
@@ -477,7 +462,6 @@ const SistemaIniciarColonizacion = () => {
                                 {/* <th>Cinturon de asteroides</th> */}
                                 {/* <th>Anillos</th> */}
                                 <th>Cuerpo más lejano</th>
-                                <th>Enlaces</th>
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasLibresFiltrados()}</tbody>
@@ -494,7 +478,6 @@ const SistemaIniciarColonizacion = () => {
                             <tr>
                                 <th>Nombre</th>
                                 <th>Distancia Origen</th>
-                                <th>Enlaces</th>
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasColonizando()}</tbody>
@@ -510,7 +493,6 @@ const SistemaIniciarColonizacion = () => {
                             <tr>
                                 <th>Nombre</th>
                                 <th>Distancia Origen</th>
-                                <th>Enlaces</th>
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasPoblados()}</tbody>

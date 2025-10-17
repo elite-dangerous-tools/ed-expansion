@@ -191,13 +191,9 @@ const SistemaExpandir = () => {
                             {sistema.name}
                         </div>
                         <div className={claseColumna}>
-                            <b>Enlaces: </b>
+                            <b>Enlace Inara: </b>
                             <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                                Inara
-                            </a>
-                            &nbsp;&nbsp;
-                            <a target="_blank" href={trafico.url}>
-                                EDSM
+                                {sistema.name}
                             </a>
                         </div>
 

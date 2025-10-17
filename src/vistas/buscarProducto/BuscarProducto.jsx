@@ -18,9 +18,9 @@ import planetaryOutpost from "../../imagenes/PlanetaryOutpost.png";
 import Enlace from "../../elementos/Enlace";
 
 let dominio = "https://stormseekers.twilightparadox.com";
-// if (window.location.hostname === "localhost") {
-//     dominio = "http://localhost:5000";
-// }
+if (window.location.hostname === "localhost") {
+    dominio = "http://localhost:5000";
+}
 
 const idiomasDisponibles = [
     {
@@ -131,13 +131,12 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 let nombreProducto = articulo.id;
                 if (idioma === "es") {
                     nombreProducto = articulo.nombre;
-                } else if (idioma === "en") {
-                    nombreProducto = articulo.name;
                 }
 
                 nuevosProductos.push({
                     value: fila.value,
                     label: nombreProducto,
+                    tipo: articulo.tipo
                 });
             });
 
@@ -242,9 +241,6 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         if (idioma == "es") {
             valor1 = a.nombre.toLowerCase();
             valor2 = b.nombre.toLowerCase();
-        } else if (idioma == "en") {
-            valor1 = a.name.toLowerCase();
-            valor2 = b.name.toLowerCase();
         } else {
             valor1 = a.id.toLowerCase();
             valor2 = b.id.toLowerCase();
@@ -312,39 +308,16 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         return 0;
     }
 
-    function mostrarDescripProductos() {
-        return productosSeleccionados.map((fila) => {
-            const productoSeleccionado = listaProductos.find((prod) => prod.id === fila.value);
-
-            let nombreProducto = productoSeleccionado.id;
-            if (idioma === "es") {
-                nombreProducto = productoSeleccionado.nombre;
-            } else if (idioma === "en") {
-                nombreProducto = productoSeleccionado.name;
-            }
-
-            return (
-                <tr key={fila.value}>
-                    <td>{nombreProducto}</td>
-                    <td>{formateaNumero(productoSeleccionado.max_stock, idioma)}</td>
-                    <td>{formateaNumero(productoSeleccionado.avg_stock, idioma)}</td>
-                </tr>
-            );
-        });
-    }
-
     function datosProducto(articulo) {
         let descrip = articulo.id;
-
         if (idioma === "es") {
             descrip = articulo.nombre;
-        } else if (idioma === "en") {
-            descrip = articulo.name;
         }
 
         return {
             value: articulo.id,
             label: descrip,
+            tipo: articulo.tipo
         };
     }
 
@@ -355,13 +328,12 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             let nombreProducto = articulo.id;
             if (idioma === "es") {
                 nombreProducto = articulo.nombre;
-            } else if (idioma === "en") {
-                nombreProducto = articulo.name;
             }
 
             return {
                 value: fila.value,
                 label: nombreProducto,
+                tipo: articulo.tipo
             };
         });
 
@@ -480,7 +452,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                 if (idioma === "es") {
                     nombreProducto = productoFila.nombre;
                 } else if (idioma === "en") {
-                    nombreProducto = productoFila.name;
+                    nombreProducto = productoFila.id;
                 }
             }
 
@@ -660,7 +632,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     <h4>Búsqueda:</h4>
                 </div>
 
-                <div className="col-sm-12 col-md-4">
+                <div className="col-sm-12 col-md-3">
                     <label htmlFor="faccion">Distancia máxima: </label>
                     <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
                         {alcancesDisponibles.map((distancia) => {
@@ -673,8 +645,8 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     </select>
                     &nbsp;&nbsp;
                 </div>
-
-                <div className="col-sm-12 col-md-4">
+            
+                <div className="col-sm-12 col-md-8">
                     <label htmlFor="producto">Productos: </label>
                     <Select
                         value={mostrarProductosSeleccionados()}
@@ -687,21 +659,53 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                         onChange={cambiaProductos}
                         className="basic-multi-select"
                         classNamePrefix="select"
+                        styles={{
+                            option: (baseStyles, state) => {
+
+                                switch (state.data.tipo) {
+                                    case 'export':
+                                        return {
+                                            ...baseStyles,
+                                            color: "green",
+                                            fontWeight: "bold"
+                                        }
+                                
+                                    case 'prohibited':
+                                        return {
+                                            ...baseStyles,
+                                            color: "red",
+                                            fontWeight: "bold"
+                                        }
+                                }
+
+                                return {
+                                    ...baseStyles
+                                }
+                            },
+                            multiValueLabel: (baseStyles, state) => {
+                                switch (state.data.tipo) {
+                                    case 'export':
+                                        return {
+                                            ...baseStyles,
+                                            color: "green",
+                                            fontWeight: "bold"
+                                        }
+                                
+                                    case 'prohibited':
+                                        return {
+                                            ...baseStyles,
+                                            color: "red",
+                                            fontWeight: "bold"
+                                        }
+                                }
+
+                                return {
+                                    ...baseStyles
+                                }
+                            }
+                        }}
                     />
                     &nbsp;&nbsp;
-                </div>
-
-                <div className="col-sm-12">
-                    <table className={estilos.tablaSistemas + " " + estilos.tablaProductos}>
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Estación con más unidades</th>
-                                <th>Media de unidades por estación</th>
-                            </tr>
-                        </thead>
-                        <tbody>{mostrarDescripProductos()}</tbody>
-                    </table>
                 </div>
             </div>
 

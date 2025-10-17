@@ -138,9 +138,9 @@ const Sistema = () => {
             return (
                 <tr key={fila.sistema + "-" + fila.estacion}>
                     <td>{fila.sistema}</td>
-                    <td>{formateaNumero(fila.distanciasistema.toFixed(2), 'es')} al</td>
+                    <td>{formateaNumero(fila.distanciasistema.toFixed(2), 'es')} AL</td>
                     <td>{fila.estacion}</td>
-                    <td>{formateaNumero(fila.distanciaestacion.toFixed(2), 'es')} sl</td>
+                    <td>{formateaNumero(fila.distanciaestacion.toFixed(2), 'es')} sL</td>
                 </tr>
             );
         });
@@ -225,13 +225,9 @@ const Sistema = () => {
                                 {sistema.name}
                             </div>
                             <div className={claseColumna}>
-                                <b>Enlaces: </b>
+                                <b>Enlace Inara: </b>
                                 <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                                    Inara
-                                </a>
-                                &nbsp;&nbsp;
-                                <a target="_blank" href={trafico.url}>
-                                    EDSM
+                                    {sistema.name}
                                 </a>
                                 &nbsp;&nbsp;
                                 {/* <Enlace to={"?sistemaExpandir=" + sistema.name}>Expandir aquí</Enlace> */}
@@ -306,16 +302,16 @@ const Sistema = () => {
                 <div className="col-sm-12">
                     <div className={estilos.tab}>
                         <Boton desactivado={tabVisible === 1} fnClick={verBgs}>
-                            Ver BGS
+                            BGS
                         </Boton>
                         <Boton desactivado={tabVisible === 2} fnClick={verEstaciones}>
-                            Ver Estaciones
+                            Estaciones
                         </Boton>
                         {/* <Boton desactivado={tabVisible === 3} fnClick={verPuntos}>
                             Ver Puntos del sistema
                             </Boton> */}
                         <Boton desactivado={tabVisible === 4} fnClick={verTrailblazers}>
-                            Ver Trailblazers
+                            Trailblazers
                         </Boton>
                     </div>
                 </div>

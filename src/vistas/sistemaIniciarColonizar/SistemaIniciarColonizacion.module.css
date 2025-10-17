@@ -38,11 +38,13 @@
     color: red;
 }
 
-:local(.sistemasVerde) {
+:local(.sistemasVerde),
+:local(.sistemasVerde) a {
     color: green;
 }
 
-:local(.sistemasAzul) {
+:local(.sistemasAzul),
+:local(.sistemasAzul) a {
     color: blue;
 }
 
