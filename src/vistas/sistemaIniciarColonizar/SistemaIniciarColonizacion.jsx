@@ -31,30 +31,25 @@ const SistemaIniciarColonizacion = () => {
             texto: ""
         },
         {
-            id: "1",
+            id: "15",
             valor: 15,
             texto: "15 AL"
         },
         {
-            id: "2",
+            id: "25",
             valor: 25,
             texto: "25 AL (Por defecto)"
         },
         {
-            id: "3",
+            id: "45",
             valor: 45,
             texto: "45 AL (Lento)"
         },
-        // {
-        //     id: "4",
-        //     valor: 75,
-        //     texto: "75 AL (Más lento)"
-        // },
-        // {
-        //     id: "5",
-        //     valor: 100,
-        //     texto: "100 AL (Muy lento)"
-        // }
+        {
+            id: "75",
+            valor: 75,
+            texto: "75 AL (Más lento)"
+        }
     ];
 
     async function recuperarSistemasAlcance(nuevoAlcance) {

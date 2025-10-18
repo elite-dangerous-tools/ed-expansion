@@ -49,19 +49,15 @@ const alcancesDisponibles = [
     },
     {
         id: 25,
-        texto: "25 AL"
+        texto: "25 AL (Lento)"
     },
     {
-        id: 50,
-        texto: "50 AL"
+        id: 45,
+        texto: "45 AL (Más lento)"
     },
     {
-        id: 100,
-        texto: "100 AL (Lento)"
-    },
-    {
-        id: 150,
-        texto: "150 AL (Más lento)"
+        id: 75,
+        texto: "75 AL (Muy Lento)"
     }
 ];
 
