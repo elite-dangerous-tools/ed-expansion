@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./SistemaIniciarColonizacion.module.css";
 
+import inara from "../../imagenes/Inara.png";
+
 import { dameBusqueda } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 import Enlace from "../../elementos/Enlace";
@@ -45,11 +47,11 @@ const SistemaIniciarColonizacion = () => {
             valor: 45,
             texto: "45 AL (Más Lento)"
         },
-        {
-            id: "75",
-            valor: 75,
-            texto: "75 AL (Muy lento)"
-        }
+        // {
+        //     id: "75",
+        //     valor: 75,
+        //     texto: "75 AL (Muy lento)"
+        // }
     ];
 
     async function recuperarSistemasAlcance(nuevoAlcance) {
@@ -278,8 +280,10 @@ const SistemaIniciarColonizacion = () => {
                 <tr key={sistema.name}>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            {sistema.name}
+                            <img className={estilos.logoInara} src={inara} />
                         </a>
+                        &nbsp;
+                        <Enlace to={"?sistema=" + sistema.name}>{sistema.name}</Enlace>
                     </td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                     {/* <td>{estrellas}</td> */}
@@ -306,8 +310,10 @@ const SistemaIniciarColonizacion = () => {
                 <tr key={sistema.name}>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            {sistema.name}
+                            <img className={estilos.logoInara} src={inara} />
                         </a>
+                        &nbsp;
+                        <Enlace to={"?sistema=" + sistema.name}>{sistema.name}</Enlace>
                     </td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                 </tr>
@@ -323,8 +329,10 @@ const SistemaIniciarColonizacion = () => {
                 <tr key={sistema.name}>
                     <td>
                         <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
-                            {sistema.name}
+                            <img className={estilos.logoInara} src={inara} />
                         </a>
+                        &nbsp;
+                        <Enlace to={"?sistema=" + sistema.name}>{sistema.name}</Enlace>
                     </td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
                 </tr>
@@ -375,7 +383,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="anillo">Debe tener algún anillo: </label>
-                    <select name="anillo" onChange={cambiaAnillo} value={anillo} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select name="anillo" onChange={cambiaAnillo} value={anillo} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
@@ -385,7 +393,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="cinturon">Debe tener cinturón de asteroides: </label>
-                    <select id="cinturon" onChange={cambiaCinturon} value={cinturon} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select id="cinturon" onChange={cambiaCinturon} value={cinturon} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
