@@ -38,17 +38,17 @@ const SistemaIniciarColonizacion = () => {
         {
             id: "25",
             valor: 25,
-            texto: "25 AL (Por defecto)"
+            texto: "25 AL (Lento)"
         },
         {
             id: "45",
             valor: 45,
-            texto: "45 AL (Lento)"
+            texto: "45 AL (Más Lento)"
         },
         {
             id: "75",
             valor: 75,
-            texto: "75 AL (Más lento)"
+            texto: "75 AL (Muy lento)"
         }
     ];
 
@@ -205,7 +205,7 @@ const SistemaIniciarColonizacion = () => {
                         altoContenidoMetal++;
                     }
 
-                    if (cuerpo.isLandable) {
+                    if (cuerpo.is_landable) {
                         aterrizables++;
                     }
                 }
@@ -282,16 +282,16 @@ const SistemaIniciarColonizacion = () => {
                         </a>
                     </td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
-                    <td>{estrellas}</td>
+                    {/* <td>{estrellas}</td> */}
                     <td>{planetasLunas}</td>
-                    {/* <td>{aterrizables}</td> */}
+                    <td>{aterrizables}</td>
 
                     <td>{tipoTierra + terraformacion}</td>
                     <td>{acuatico + amoniaco}</td>
                     <td>{ricoEnMetal + altoContenidoMetal}</td>
 
-                    {/* <td>{cinturones}</td> */}
-                    {/* <td>{anillos}</td> */}
+                    <td>{cinturones}</td>
+                    <td>{anillos}</td>
                     <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format( cuerpoMasLejano.toFixed(0) )} sL</td>
                 </tr>
             );
@@ -365,7 +365,7 @@ const SistemaIniciarColonizacion = () => {
 
                 <div className="col-sm-12 col-md-4">
                     <label htmlFor="aterrizable">Debe tener cuerpos aterrizables: </label>
-                    <select id="aterrizable" onChange={cambiaAterrizable} value={aterrizable} disabled={true || cargando} className={estilos.selectAlcance}>
+                    <select id="aterrizable" onChange={cambiaAterrizable} value={aterrizable} disabled={cargando} className={estilos.selectAlcance}>
                         <option value=""></option>
                         <option value="SI">Sí</option>
                         <option value="NO">No</option>
@@ -444,18 +444,18 @@ const SistemaIniciarColonizacion = () => {
                     <table className={estilos.tablaSistemas}>
                         <thead>
                             <tr>
-                                <th>Nombre</th>
+                                <th width={175}>Nombre</th>
                                 <th>Distancia Origen</th>
-                                <th>Estrellas</th>
+                                {/* <th>Estrellas</th> */}
                                 <th>Planetas y Satélites</th>
-                                {/* <th>Cuerpos aterrizables</th> */}
+                                <th>Cuerpos aterrizables</th>
 
                                 <th>Tipo Tierra o Terraformable</th>
                                 <th>Acuaticos o Amoniaco</th>
                                 <th>Metalicos</th>
 
-                                {/* <th>Cinturon de asteroides</th> */}
-                                {/* <th>Anillos</th> */}
+                                <th>Cinturon de asteroides</th>
+                                <th>Anillos</th>
                                 <th>Cuerpo más lejano</th>
                             </tr>
                         </thead>
