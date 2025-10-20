@@ -98,6 +98,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     const [planetaria, setPlanetaria] = useState(parametrosUrl.planetaria || "");
     const [idioma, setIdioma] = useState(parametrosUrl.idioma || "es");
     const [orden, setOrden] = useState(parametrosUrl.orden || "distanciasistema");
+    const [portanaves, setPortanaves] = useState(parametrosUrl.portanaves || "");
     const [suministroMinimo, setSuministroMinimo] = useState(parametrosUrl.suministroMinimo ? parseInt(parametrosUrl.suministroMinimo) : 100);
 
     useEffect(() => {
@@ -119,7 +120,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
     useEffect(() => {
         // hemos cambiado el alcance o el producto o el idioma
         guardarParametros();
-    }, [alcance, productosSeleccionados, idioma, orden, suministroMinimo, plataforma, planetaria]);
+    }, [alcance, productosSeleccionados, portanaves, idioma, orden, suministroMinimo, plataforma, planetaria]);
 
     useEffect(() => {
         // hemos recuperado los productos
@@ -163,6 +164,10 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         setOrden(evento.target.value);
     }
 
+    function cambiaPortanaves(evento) {
+        setPortanaves(evento.target.value);
+    }
+
     function cambiaPlataforma(evento) {
         setPlataforma(evento.target.value);
     }
@@ -183,6 +188,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
         params.set("orden", orden);
         params.set("plataforma", plataforma);
         params.set("planetaria", planetaria);
+        params.set("portanaves", portanaves);
         params.set("suministroMinimo", suministroMinimo);
 
         const valoresProductos = productosSeleccionados.map(item => item.value);
@@ -353,6 +359,15 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
             // Los Trailblazer son como meganaves
             fila.type = "Mega ship";
         }
+
+        if (portanaves == "0" && fila.carrier_docking_access) {
+            // No permitimos carriers
+            return undefined;
+        } else if (portanaves == "1" && !fila.carrier_docking_access) {
+            // Solo permitimos carriers
+            return undefined;
+        }
+
 
         if (productosSeleccionados.length === 0) {
             // Si no hay productos seleccionados, devolvemos todas las filas
@@ -589,6 +604,16 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     &nbsp;&nbsp;
                 </div>
 
+                <div className="col-sm-12 col-md-3">
+                    <label htmlFor="portanaves">Portanaves: </label>
+                    <select id="portanaves" onChange={cambiaPortanaves} value={portanaves} disabled={cargando} className={estilos.selectAlcance}>
+                        <option value=""></option>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                    &nbsp;&nbsp;
+                </div>
+
                 <div className="col-sm-6 col-md-3">
                     <label htmlFor="suministroMinimo">Suministro mínimo: </label>
                     <select
@@ -690,7 +715,7 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
                     <h4>Búsqueda:</h4>
                 </div>
 
-                <div className="col-sm-12 col-md-3">
+                <div className="col-sm-6 col-md-3">
                     <label htmlFor="faccion">Distancia máxima: </label>
                     <select id="faccion" onChange={cambiaAlcance} value={alcance} disabled={cargando} className={estilos.selectAlcance}>
                         {alcancesDisponibles.map(distancia => {
