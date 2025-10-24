@@ -303,7 +303,28 @@ const SistemaIniciarColonizacion = () => {
     }
 
     function pintarSistemasColonizando() {
-        let sistemasOrdenados = ordenarSistemas(sistemasAlcanceColonizados);
+        let sistemasColonizados = sistemasAlcanceColonizados.filter(s => s.is_colonised === true);
+        let sistemasOrdenados = ordenarSistemas(sistemasColonizados);
+
+        return sistemasOrdenados.map(sistema => {
+            return (
+                <tr key={sistema.name}>
+                    <td>
+                        <a target="_blank" href={"https://inara.cz/elite/starsystem/?search=" + sistema.name}>
+                            <img className={estilos.logoInara} src={inara} />
+                        </a>
+                        &nbsp;
+                        <Enlace to={"?sistema=" + sistema.name}>{sistema.name}</Enlace>
+                    </td>
+                    <td>{new Intl.NumberFormat("es-CO", { currency: "EUR" }).format(sistema.distance)} AL</td>
+                </tr>
+            );
+        });
+    }
+
+    function pintarSistemasReclamando() {
+        let sistemasReclamando = sistemasAlcanceColonizados.filter(s => s.is_being_colonised === true);
+        let sistemasOrdenados = ordenarSistemas(sistemasReclamando);
 
         return sistemasOrdenados.map(sistema => {
             return (
@@ -484,6 +505,21 @@ const SistemaIniciarColonizacion = () => {
                             </tr>
                         </thead>
                         <tbody>{cargando ? null : pintarSistemasColonizando()}</tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-sm-12">
+                    <h4>Sistemas en proceso de reclamación por jugadores:</h4>
+                    <table className={estilos.tablaSistemas + " " + estilos.sistemasVerde}>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Distancia Origen</th>
+                            </tr>
+                        </thead>
+                        <tbody>{cargando ? null : pintarSistemasReclamando()}</tbody>
                     </table>
                 </div>
             </div>
