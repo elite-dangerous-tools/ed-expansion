@@ -4,7 +4,7 @@ import estilos from "./SistemaIniciarColonizacion.module.css";
 
 import inara from "../../imagenes/Inara.png";
 
-import { dameBusqueda } from "../../utilidades";
+import { dameBusqueda, dameDominio } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 import Enlace from "../../elementos/Enlace";
 
@@ -60,10 +60,7 @@ const SistemaIniciarColonizacion = () => {
             return;
         }
 
-        let dominio = "https://stormseekers.twilightparadox.com";
-        // if (window.location.hostname === "localhost") {
-        //     dominio = "http://localhost:5000";
-        // }
+        let dominio = dameDominio();
 
         let urlAlcance = dominio + "/api/sistemas_alcance?distancia=" + radio + "&sistema=" + nombreSistema;
         let response = await fetch(encodeURI(urlAlcance), {

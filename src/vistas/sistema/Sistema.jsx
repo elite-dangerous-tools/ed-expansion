@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import estilos from "./Sistema.module.css";
 
-import { dameBusqueda, formateaNumero } from "../../utilidades";
+import { dameBusqueda, formateaNumero, dameDominio } from "../../utilidades";
 import Enlace from "../../elementos/Enlace";
 import Progreso from "../../elementos/Progreso";
 import Boton from "../../elementos/Boton";
@@ -35,7 +35,8 @@ const Sistema = () => {
     }
 
     async function recuperarTrailblazers() {
-        let response = await fetch("https://stormseekers.twilightparadox.com/api/distancia_trailblazer?sistema=" + nombreSistema, {
+        let dominio = dameDominio();
+        let response = await fetch(dominio + "/api/distancia_trailblazer?sistema=" + nombreSistema, {
             method: "GET",
         });
 

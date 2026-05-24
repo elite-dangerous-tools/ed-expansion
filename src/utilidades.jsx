@@ -1,4 +1,4 @@
-const clonar = (elemento) => {
+const clonar = elemento => {
     if (Array.isArray(elemento)) {
         return elemento.slice();
     } else if (typeof elemento === "object") {
@@ -18,6 +18,15 @@ const semverGreaterThan = (versionA, versionB) => {
         return a > b || isNaN(b);
     }
     return false;
+};
+
+const dameDominio = () => {
+    let dominio = "https://stormseekers.twilightparadox.com";
+    if (window.location.hostname === "localhost") {
+        dominio = "http://localhost:5000";
+    }
+
+    return dominio;
 };
 
 const dameUrlBase = () => {
@@ -61,4 +70,4 @@ const formateaNumero = (valor, idioma) => {
     }
 };
 
-export { clonar, semverGreaterThan, dameUrlBase, dameBusqueda, dameBusquedaMultiple, formateaNumero };
+export { clonar, semverGreaterThan, dameDominio, dameUrlBase, dameBusqueda, dameBusquedaMultiple, formateaNumero };

@@ -3,7 +3,7 @@ import Select from "react-select";
 
 import estilos from "./BuscarProducto.module.css";
 
-import { formateaNumero } from "../../utilidades";
+import { formateaNumero, dameDominio } from "../../utilidades";
 import Progreso from "../../elementos/Progreso";
 
 import outpost from "../../imagenes/Outpost.png";
@@ -18,10 +18,7 @@ import PlanetaryPort from "../../imagenes/PlanetaryPort.png";
 import planetaryOutpost from "../../imagenes/PlanetaryOutpost.png";
 import Enlace from "../../elementos/Enlace";
 
-let dominio = "https://stormseekers.twilightparadox.com";
-// if (window.location.hostname === "localhost") {
-//     dominio = "http://localhost:5000";
-// }
+let dominio = dameDominio();
 
 const idiomasDisponibles = [
     {
