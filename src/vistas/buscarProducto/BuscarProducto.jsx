@@ -10,6 +10,7 @@ import outpost from "../../imagenes/Outpost.png";
 import asteroid from "../../imagenes/Asteroid.png";
 import odyssey from "../../imagenes/OdysseySettlement.png";
 import coriolis from "../../imagenes/Coriolis.png";
+import dodec from "../../imagenes/Dodec.png";
 import ocellus from "../../imagenes/Ocellus.png";
 import orbis from "../../imagenes/Orbis.png";
 import megaship from "../../imagenes/Megaship.png";
@@ -452,6 +453,10 @@ const BuscarProducto = ({ parametrosUrl, listaProdInicial }) => {
 
                 case "Coriolis Starport":
                     imagenEstacion = coriolis;
+                    break;
+
+                case "Dodec Starport":
+                    imagenEstacion = dodec;
                     break;
 
                 case "Outpost":
