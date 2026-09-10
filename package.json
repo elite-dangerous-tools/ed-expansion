@@ -1,19 +1,14 @@
 {
     "name": "ed-colonizacion",
-    "version": "1.11.4",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
-    "packageManager": "yarn@1.22.22",
     "dependencies": {
-        "chokidar": "^3.5.3",
-        "esbuild": "^0.15.13",
-        "esbuild-css-modules-plugin": "^2.6.2",
-        "file-saver": "^2.0.5",
-        "fs-extra": "^10.1.0",
-        "live-server": "^1.2.2",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-select": "^5.10.1"
+        "esbuild": "~0.28.2",
+        "esbuild-css-modules-plugin": "~3.1.5",
+        "react": "~18.2.0",
+        "react-dom": "~18.2.0",
+        "react-select": "~5.10.1"
     },
     "lint-staged": {
         "src/**/*.{js,jsx,json,css}": [
@@ -27,14 +22,12 @@
         }
     },
     "scripts": {
-        "generate-version": "node ./src/scripts/generate-build-version",
-        "prebuild": "npm run generate-version",
+        "prebuild": "node ./src/scripts/generate-build-version",
         "pre-commit": "lint-staged",
         "lint": "eslint \"src/**/*.{js,jsx}\" --max-warnings=0",
         "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
         "build": "node ./src/scripts/build.js",
-        "start": "node ./src/scripts/dev.js --port=4000",
-        "dev": "npm run start"
+        "dev": "node ./src/scripts/dev.js --port=4000"
     },
     " jest ": {
         " automock ": true,
@@ -44,10 +37,7 @@
         "setupTestFrameworkScriptFile": "<rootDir>/src/prepararJest.js"
     },
     "devDependencies": {
-        "prettier": "^1.16.4"
-    },
-    "overrides": {
-        "chokidar": "^3.5.3"
+        "prettier": "~1.16.4"
     },
     "browserslist": [
         ">0.2%",

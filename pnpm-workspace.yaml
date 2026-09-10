@@ -1,0 +1,3 @@
+# Permitir el script de postinstall de esbuild (descarga su binario)
+allowBuilds:
+  esbuild: true

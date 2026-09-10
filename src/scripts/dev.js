@@ -1,92 +1,91 @@
-import liveServer from "live-server";
-import chokidar from "chokidar";
+import { createServer } from "http";
+import { readFileSync, existsSync, rmSync, cpSync, statSync, watch as fsWatch } from "fs";
+import { join, extname } from "path";
+import { networkInterfaces } from "os";
 import esbuild from "esbuild";
-import fse from "fs-extra";
-import os from "os";
 
 import { buildParams, carpetaDev } from "./esbuild-config.js";
 
 let puerto = 3000;
-let argumentos = process.argv.slice(2);
-for (const argumento of argumentos) {
-    let [clave, valor] = argumento.split("=");
-    if (clave === "--port") {
-        puerto = parseInt(valor);
-    }
+for (const arg of process.argv.slice(2)) {
+    const [key, val] = arg.split("=");
+    if (key === "--port") puerto = parseInt(val);
 }
 
-/**
- * Live Server Params
- * @link https://www.npmjs.com/package/live-server#usage-from-node
- */
-const serverParams = {
-    port: puerto, // Set the server port. Defaults to 8080.
-    root: carpetaDev, // Set root directory that's being served. Defaults to cwd.
-    open: false, // When false, it won't load your browser by default.
-    host: "0.0.0.0", // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
-    // ignore: 'scss,my/templates', // comma-separated string for paths to ignore
-    ignore: "dist,build,node_modules",
-    file: "index.html" // When set, serve this file (server root relative) for every 404 (useful for single-page applications)
-    // wait: 1000, // Waits for all changes, before reloading. Defaults to 0 sec.
-    // mount: [['/components', './node_modules']], // Mount a directory to a route.
-    // logLevel: 2, // 0 = errors only, 1 = some, 2 = lots
-    // middleware: [function(req, res, next) { next(); }] // Takes an array of Connect-compatible middleware that are injected into the server middleware stack
+// Limpiar carpeta de desarrollo
+if (existsSync(carpetaDev)) {
+    rmSync(carpetaDev, { recursive: true });
+}
+
+// Copiar carpeta public
+cpSync("./public", carpetaDev, { recursive: true });
+
+// MIME types para servir archivos estaticos
+const MIME = {
+    ".html": "text/html",
+    ".js": "application/javascript",
+    ".mjs": "application/javascript",
+    ".css": "text/css",
+    ".json": "application/json",
+    ".png": "image/png",
+    ".ico": "image/x-icon",
+    ".svg": "image/svg+xml",
+    ".ttf": "font/ttf",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
 };
 
-// Clean folder
-if (fse.existsSync(carpetaDev)) {
-    await fse.rm(carpetaDev, { recursive: true });
-}
-await fse.copy("./public", carpetaDev);
+const server = createServer((req, res) => {
+    let url = req.url.split("?")[0];
+    if (url === "/") url = "/index.html";
 
-function info_dist() {
-    let lineaIp = "\r\nSirviendo desarrollo en: http://localhost:" + puerto;
+    const filePath = join(carpetaDev, url);
+    try {
+        if (statSync(filePath).isFile()) {
+            const ext = extname(filePath);
+            res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
+            res.end(readFileSync(filePath));
+            return;
+        }
+    } catch {}
 
-    var networkInterfaces = os.networkInterfaces();
-    for (let indice in networkInterfaces) {
-        let interfaz = networkInterfaces[indice];
+    // SPA fallback: servir index.html para cualquier ruta no encontrada
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(readFileSync(join(carpetaDev, "index.html")));
+});
 
-        for (let alias in interfaz) {
-            let red = interfaz[alias];
-            if (red.family === "IPv4") {
-                lineaIp += ", http://" + red.address + ":" + puerto;
-            }
+server.listen(puerto, "0.0.0.0", () => {
+    let urls = `\x1b[32mSirviendo desarrollo en: \x1b[34mhttp://localhost:${puerto}`;
+    for (const ifaces of Object.values(networkInterfaces())) {
+        for (const iface of ifaces) {
+            if (iface.family === "IPv4") urls += `, http://${iface.address}:${puerto}`;
         }
     }
+    console.log(urls + "\x1b[0m");
+});
 
-    console.log(lineaIp);
-    // if (hayCambios) console.log("Listo para cambios");
-}
+// Build inicial + watch con esbuild
+const ctx = await esbuild.context(buildParams);
+await ctx.rebuild();
 
-(async () => {
-    // Build
-    const result = await esbuild.build(buildParams).catch(() => process.exit(1));
+ctx.watch((result) => {
+    if (result.errors.length === 0) {
+        console.log("\x1b[32m⚡ [esbuild] Rebuild completado\x1b[0m");
+    }
+});
 
-    // Start live server
-    liveServer.start(serverParams);
-    setTimeout(info_dist, 250);
+// Watch manual de public/ (esbuild ctx.watch solo vigila src/)
+const publicWatcher = fsWatch("./public", { recursive: true }, (event, filename) => {
+    if (filename) {
+        console.log(`⚡ [public] Copiando ${filename}`);
+        cpSync("./public", carpetaDev, { recursive: true });
+    }
+});
 
-    /**
-     * Watch development server changes
-     * ignored: ignore watch `.*` files
-     */
-    return chokidar.watch(["src/**/*", "public/**/*"], { ignored: /(^|[/\\])\../, ignoreInitial: true }).on("all", async (event, path) => {
-        if (event === "change" && path.includes(carpetaDev)) {
-            // Nothing
-        } else if (event === "change" && path.includes("public")) {
-            console.log(`⚡ [esbuild] change in public ${path}`);
-            try {
-                fse.copySync("public", carpetaDev);
-            } catch (err) {
-                console.error(err);
-            }
-        } else if (event === "change") {
-            console.log(`⚡ [esbuild] Rebuilding ${path}`);
-            console.time("⚡ [esbuild] Done");
-            if (result.rebuild) await result.rebuild();
-            console.timeEnd("⚡ [esbuild] Done");
-
-            setTimeout(info_dist, 250);
-        }
-    });
-})();
+// Cerrar limpiamente
+process.on("SIGINT", () => {
+    server.close();
+    ctx.dispose();
+    publicWatcher.close();
+    process.exit(0);
+});

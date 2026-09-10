@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// import packageJson from "../package.json" assert { type: "json" };
-import packageJson from "../package.json";
+// La version empaquetada la inyecta esbuild desde src/scripts/esbuild-config.js
+// (contador de commits), igual que meta.json
+const versionApp = typeof __VERSION_APP__ !== "undefined" ? __VERSION_APP__ : "0.0.0";
 
 import "./grid.css";
 import estilos from "./App.module.css";
@@ -35,12 +36,12 @@ const App = (props) => {
 
         if (response.status >= 200 && response.status < 300) {
             const meta = await response.json();
-            const latestVersion = meta.version;
+            const latestVersion = String(meta.version);
             setUltimaVersion(latestVersion);
 
             let hayActualizacion = semverGreaterThan(
                 latestVersion,
-                packageJson.version
+                versionApp
             );
             setHayActualizacion(hayActualizacion);
         }
@@ -88,11 +89,11 @@ const App = (props) => {
                     </b>
 
                     <span className={estilos.separadorDerecha}></span>
-                    {!hayActualizacion && <div>v{packageJson.version}</div>}
+                    {!hayActualizacion && <div>v{versionApp}</div>}
                     {hayActualizacion && (
                         <div>
                             <span className={estilos.versionAnterior}>
-                                v{packageJson.version}
+                                v{versionApp}
                             </span>
                             &nbsp;-&nbsp;
                             <span className={estilos.versionNueva}>

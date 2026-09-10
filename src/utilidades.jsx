@@ -21,7 +21,7 @@ const semverGreaterThan = (versionA, versionB) => {
 };
 
 const dameDominio = () => {
-    let dominio = "https://stormseekers.twilightparadox.com";
+    let dominio = "https://edapi.marcant94.duckdns.org";
     if (window.location.hostname === "localhost") {
         dominio = "http://localhost:5000";
     }
@@ -30,10 +30,12 @@ const dameDominio = () => {
 };
 
 const dameUrlBase = () => {
-    if (window.location.href.includes("ed-colonizacion")) {
-        return "/ed-colonizacion/";
-    } else {
+    if (window.location.pathname == "/") {
+        // Es Desarrollo
         return "/";
+    } else {
+        // Es GitHub Pages
+        return window.location.pathname;
     }
 };
 

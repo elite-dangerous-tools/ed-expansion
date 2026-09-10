@@ -1,34 +1,30 @@
+import { existsSync, rmSync, cpSync, readFileSync, writeFileSync } from "fs";
 import esbuild from "esbuild";
-// import { config } from "dotenv";
-import fse from "fs-extra";
 import { buildParams, carpetaProd } from "./esbuild-config.js";
-import packageJson from "../../package.json" assert { type: "json" };
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const packageJson = require("../../package.json");
 
 const build = async () => {
-    // config();
-    if (fse.existsSync(carpetaProd)) {
-        await fse.rm(carpetaProd, { recursive: true });
+    if (existsSync(carpetaProd)) {
+        rmSync(carpetaProd, { recursive: true });
     }
 
     // Copiamos la carpeta public a la carpeta del build
-    await fse.copy("./public", carpetaProd);
+    cpSync("./public", carpetaProd, { recursive: true });
 
-    // Insertamos en el index.html la versión
-    fse.readFile(carpetaProd + "/index.html", "utf8", function(err, data) {
-        if (err) {
-            return console.log("Error al leer index.html", err);
-        }
-
-        var result = data.replaceAll("?v=dev", "?v=" + packageJson.version).replaceAll("./", "/ed-colonizacion/");
-
-        fse.writeFile(carpetaProd + "/index.html", result, "utf8", function(err) {
-            if (err) return console.log("Error al escribir index.html", err);
-        });
-    });
+    // Insertamos en el index.html la version
+    const indexPath = carpetaProd + "/index.html";
+    let data = readFileSync(indexPath, "utf8");
+    data = data.replaceAll("index.js", "index.js?v=" + packageJson.version);
+    data = data.replaceAll("index.css", "index.css?v=" + packageJson.version);
+    writeFileSync(indexPath, data, "utf8");
 
     console.log(`⚡ [esbuild] Building..`);
-    // Run build
-    esbuild.build(buildParams).catch(() => process.exit(1));
+    const ctx = await esbuild.context(buildParams);
+    await ctx.rebuild();
+    await ctx.dispose();
 };
 
 build();

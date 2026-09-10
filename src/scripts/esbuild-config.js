@@ -1,4 +1,14 @@
 import cssModulesPlugin from "esbuild-css-modules-plugin";
+import { execSync } from "child_process";
+
+// La version es el numero de commits, igual que en generate-build-version.js
+let numCommits;
+try {
+    numCommits = parseInt(execSync("git rev-list --count HEAD", { encoding: "utf8" }).trim(), 10);
+} catch (error) {
+    numCommits = undefined;
+}
+const versionApp = numCommits !== undefined ? String(numCommits) : "0";
 
 const isDev = process.argv[1].includes("dev.js");
 
@@ -19,16 +29,19 @@ for (const key in process.env) {
 const buildParams = {
     color: true,
     entryPoints: ["src/index.jsx"],
-    loader: { ".png": "file", ".jpg": "file", ".svg": "file" },
-    define: clientEnv,
+    loader: { ".png": "file", ".jpg": "file", ".ico": "file", ".svg": "file", ".ttf": "file" },
+    define: {
+        __VERSION_APP__: JSON.stringify(versionApp),
+        ...clientEnv,
+    },
     outdir: isDev ? carpetaDev : carpetaProd,
+    outbase: "src",
     minify: !isDev,
     // format: "cjs",
     format: "esm",
     bundle: true,
-    sourcemap: isDev, // "inline",
+    sourcemap: false,
     logLevel: isDev ? "info" : "error",
-    incremental: isDev,
     splitting: true,
     plugins: [
         cssModulesPlugin({
